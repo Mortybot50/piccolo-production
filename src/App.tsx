@@ -17,6 +17,9 @@ const CateringPage = lazy(() => import("@/pages/Catering"));
 const SupplierOrdersPage = lazy(() => import("@/pages/SupplierOrders"));
 const InvoicePage = lazy(() => import("@/pages/Invoice"));
 const InvoiceHistoryPage = lazy(() => import("@/pages/InvoiceHistory"));
+const DashboardPage = lazy(() => import("@/pages/Dashboard"));
+const AuditLogPage = lazy(() => import("@/pages/AuditLog"));
+const RecipesPage = lazy(() => import("@/pages/Recipes"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -75,7 +78,7 @@ export default function App() {
                 path="/dashboard"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Dashboard" phase="Phase I" />
+                    <DashboardPage />
                   </RouteGuard>
                 }
               />
@@ -123,7 +126,7 @@ export default function App() {
                 path="/audit-log"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Audit log" phase="Phase B" />
+                    <AuditLogPage />
                   </RouteGuard>
                 }
               />
@@ -131,7 +134,7 @@ export default function App() {
                 path="/recipes"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Recipes" phase="Phase B" />
+                    <RecipesPage />
                   </RouteGuard>
                 }
               />

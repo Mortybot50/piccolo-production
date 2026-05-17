@@ -23,6 +23,7 @@ import {
   usePrepGap,
   useStockCounts,
   usePrepLog,
+  useWasteEntries,
 } from "@/lib/queries";
 import { fmtQty, todayISO } from "@/lib/format";
 import { useAuth } from "@/contexts/AuthContext";
@@ -177,7 +178,174 @@ export default function TodayPage() {
           })}
         </CardContent>
       </Card>
+
+      <WasteCard date={date} prepItems={prepItems} />
     </AppShell>
+  );
+}
+
+const WASTE_REASONS = [
+  { value: "expired", label: "Expired" },
+  { value: "damaged", label: "Damaged" },
+  { value: "over_prepped", label: "Over-prepped" },
+  { value: "customer_return", label: "Customer return" },
+  { value: "staff_meal", label: "Staff meal" },
+  { value: "other", label: "Other" },
+] as const;
+
+interface WasteRow {
+  id: string;
+  waste_date: string;
+  prep_item_id: string;
+  qty: number;
+  reason_code: string;
+  note: string | null;
+}
+
+function WasteCard({ date, prepItems }: { date: string; prepItems: PrepItemLite[] }) {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  const { data: entriesRaw = [] } = useWasteEntries(date);
+  const entries = entriesRaw as WasteRow[];
+  const nameById = useMemo(
+    () => new Map(prepItems.map((p) => [p.id, p])),
+    [prepItems]
+  );
+  const [itemId, setItemId] = useState<string>(prepItems[0]?.id ?? "");
+  const [qty, setQty] = useState("");
+  const [reason, setReason] = useState<(typeof WASTE_REASONS)[number]["value"]>("expired");
+  const [note, setNote] = useState("");
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const n = parseFloat(qty);
+      if (!isFinite(n) || n <= 0) throw new Error("Enter qty > 0");
+      if (!itemId) throw new Error("Pick an item");
+      const { error } = await supabase.from("waste_entries").insert({
+        waste_date: date,
+        prep_item_id: itemId,
+        qty: n,
+        reason_code: reason,
+        note: note || null,
+        logged_by_user_id: user?.id ?? null,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Waste logged");
+      setQty("");
+      setNote("");
+      qc.invalidateQueries({ queryKey: qk.wasteEntries(date) });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("waste_entries").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Waste removed");
+      qc.invalidateQueries({ queryKey: qk.wasteEntries(date) });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle>Waste log (today)</CardTitle>
+        <CardDescription>
+          Record anything binned, returned, or eaten by staff. Drives loss tracking.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <div className="col-span-2">
+            <label className="text-xs text-stone-500">Item</label>
+            <select
+              value={itemId}
+              onChange={(e) => setItemId(e.target.value)}
+              className="h-9 w-full rounded-md border border-[var(--color-border)] bg-white px-2 text-sm"
+            >
+              {prepItems.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} ({p.unit})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="text-xs text-stone-500">Qty</label>
+            <Input
+              inputMode="decimal"
+              value={qty}
+              onChange={(e) => setQty(e.target.value.replace(/[^0-9.]/g, ""))}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-stone-500">Reason</label>
+            <select
+              value={reason}
+              onChange={(e) =>
+                setReason(e.target.value as (typeof WASTE_REASONS)[number]["value"])
+              }
+              className="h-9 w-full rounded-md border border-[var(--color-border)] bg-white px-2 text-sm"
+            >
+              {WASTE_REASONS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <Input
+          placeholder="Note (optional)"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+        />
+        <div>
+          <Button
+            size="sm"
+            disabled={save.isPending}
+            onClick={() => void save.mutateAsync()}
+          >
+            {save.isPending ? "Saving…" : "Log waste"}
+          </Button>
+        </div>
+
+        {entries.length > 0 ? (
+          <div className="space-y-1 pt-2">
+            {entries.map((w) => {
+              const it = nameById.get(w.prep_item_id);
+              return (
+                <div
+                  key={w.id}
+                  className="flex items-center justify-between rounded border border-stone-200 bg-stone-50 px-2 py-1 text-xs"
+                >
+                  <span>
+                    <strong>{fmtQty(w.qty)}</strong> {it?.unit ?? ""}{" "}
+                    {it?.name ?? w.prep_item_id} · {w.reason_code}
+                    {w.note ? ` · ${w.note}` : ""}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void remove.mutateAsync(w.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="pt-1 text-xs text-stone-500">No waste logged today.</p>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
