@@ -7,7 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { supabase, PIN_LOGIN_URL, PIN_CHANGE_URL } from "@/lib/supabase";
-import type { PublicUser } from "@/types/database";
+import type { PublicUser } from "@/types/app";
 
 interface LoginOk {
   ok: true;
@@ -45,11 +45,15 @@ function clearAuthStorage() {
 }
 
 async function fetchSelf(): Promise<PublicUser | null> {
-  const { data, error } = await supabase
-    .from("users")
-    .select("id, display_name, must_change_pin")
-    .limit(1)
-    .maybeSingle();
+  // Read app_user_id from the JWT user_metadata (set by pin-login edge fn).
+  // Falls back to first row when only one user exists (Phase A seed state).
+  const { data: sessData } = await supabase.auth.getSession();
+  const appUserId = sessData.session?.user.user_metadata?.app_user_id as
+    | string
+    | undefined;
+  let query = supabase.from("users").select("id, display_name, must_change_pin");
+  if (appUserId) query = query.eq("id", appUserId);
+  const { data, error } = await query.limit(1).maybeSingle();
   if (error) {
     // eslint-disable-next-line no-console
     console.error("[auth] fetchSelf error", error);
@@ -64,12 +68,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    const bootTimeout = setTimeout(() => {
-      if (cancelled) return;
+    let booted = false; // flips true once we know the session state
+
+    // Non-destructive boot guard: if getSession() hasn't returned in 5s,
+    // just mark loading=false and let onAuthStateChange catch up later.
+    // DO NOT clear storage here — that races with a concurrent login()
+    // call and wipes the token we just minted (real bug seen 17/05/2026).
+    const bootGuard = setTimeout(() => {
+      if (cancelled || booted) return;
       // eslint-disable-next-line no-console
-      console.warn("[auth] getSession timed out after 5s. Clearing local auth.");
-      clearAuthStorage();
-      setUser(null);
+      console.warn("[auth] getSession slow (>5s). Continuing; auth events will catch up.");
       setIsLoading(false);
     }, 5000);
 
@@ -77,18 +85,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const { data, error } = await supabase.auth.getSession();
         if (cancelled) return;
-        clearTimeout(bootTimeout);
-        if (error || !data.session) {
+        booted = true;
+        clearTimeout(bootGuard);
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("[auth] getSession error", error);
+          // Defensive clear only if the stored token is actively bad.
+          clearAuthStorage();
+          setUser(null);
+        } else if (!data.session) {
           setUser(null);
         } else {
-          // We have a session; check who we are.
           const me = await fetchSelf();
           setUser(me);
         }
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("[auth] boot error", err);
-        clearAuthStorage();
         setUser(null);
       } finally {
         if (!cancelled) setIsLoading(false);
@@ -96,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })();
 
     const { data: sub } = supabase.auth.onAuthStateChange(async (_evt, session) => {
+      if (cancelled) return;
       if (!session) {
         setUser(null);
       } else {
@@ -106,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => {
       cancelled = true;
-      clearTimeout(bootTimeout);
+      clearTimeout(bootGuard);
       sub.subscription.unsubscribe();
     };
   }, []);
@@ -129,7 +143,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         retry_after_seconds: body.retry_after_seconds,
       };
     }
-    const body = (await res.json()) as { access_token: string; refresh_token: string };
+    const body = (await res.json()) as {
+      access_token: string;
+      refresh_token: string;
+      must_change_pin?: boolean;
+      user?: { id: string; display_name: string };
+    };
     const { error } = await supabase.auth.setSession({
       access_token: body.access_token,
       refresh_token: body.refresh_token,
@@ -137,8 +156,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) {
       return { ok: false, reason: `Session error: ${error.message}` };
     }
-    const me = await fetchSelf();
-    setUser(me);
+    // Set user state from the edge function's response — don't call
+    // fetchSelf here because the onAuthStateChange listener will ALSO
+    // call fetchSelf for the same setSession event, causing a duplicate
+    // round-trip and (under iOS Safari) a race / hang. The listener wins.
+    if (body.user) {
+      setUser({
+        id: body.user.id,
+        display_name: body.user.display_name,
+        must_change_pin: body.must_change_pin ?? false,
+      });
+    }
     return { ok: true };
   };
 

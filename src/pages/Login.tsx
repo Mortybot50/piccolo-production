@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { toast } from "@/components/ui/sonner";
-import type { PublicUser } from "@/types/database";
+import type { PublicUser } from "@/types/app";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -22,18 +22,18 @@ export default function LoginPage() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const { data, error } = await supabase
-        .from("users")
-        .select("id, display_name, must_change_pin")
-        .eq("active", true)
-        .order("display_name");
+      // /login is anon. Direct SELECT on `users` is blocked by RLS
+      // (authenticated-only). Use the SECURITY DEFINER RPC that returns
+      // only id, display_name, must_change_pin for active users.
+      const { data, error } = await supabase.rpc("list_active_users");
       if (cancelled) return;
       if (error || !data) {
         setUsers([]);
         return;
       }
-      setUsers(data);
-      if (data.length === 1) setSelectedUserId(data[0].id);
+      const rows = data as unknown as PublicUser[];
+      setUsers(rows);
+      if (rows.length === 1) setSelectedUserId(rows[0].id);
     })();
     return () => {
       cancelled = true;
