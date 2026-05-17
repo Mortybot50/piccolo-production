@@ -10,6 +10,7 @@ const ChangePinPage = lazy(() => import("@/pages/ChangePin"));
 const PrimitivesPage = lazy(() => import("@/pages/Primitives"));
 const Placeholder = lazy(() => import("@/pages/Placeholder"));
 const SettingsPage = lazy(() => import("@/pages/Settings"));
+const SalesInputPage = lazy(() => import("@/pages/SalesInput"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -100,7 +101,7 @@ export default function App() {
                 path="/sales-input"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Sales input" phase="Phase D" />
+                    <SalesInputPage />
                   </RouteGuard>
                 }
               />

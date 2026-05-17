@@ -36,6 +36,9 @@ export const qk = {
     ["weekly_invoice", storeId, ws, we] as const,
   productionPnl: (start: string, end: string) =>
     ["production_pnl", start, end] as const,
+  salesAverages: (storeId: string, weekNumber: number) =>
+    ["sales_averages_4wk", storeId, weekNumber] as const,
+  addonEntries: (weekId: string) => ["addon_entries", weekId] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -290,6 +293,51 @@ export function useWeeklyInvoice(
         p_week_start: weekStart,
         p_week_end: weekEnd,
       });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useSalesAverages(storeId: string | null, weekNumber: number | null) {
+  return useQuery({
+    queryKey: qk.salesAverages(storeId ?? "", weekNumber ?? 0),
+    enabled: !!storeId && weekNumber != null,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("sales_averages_4wk", {
+        p_store_id: storeId!,
+        p_week_number: weekNumber!,
+      });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useSalesEntries(weekId: string | null) {
+  return useQuery({
+    queryKey: qk.salesEntries(weekId ?? ""),
+    enabled: !!weekId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sales_entries")
+        .select("*")
+        .eq("week_id", weekId!);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useAddonEntries(weekId: string | null) {
+  return useQuery({
+    queryKey: qk.addonEntries(weekId ?? ""),
+    enabled: !!weekId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("addon_entries")
+        .select("*")
+        .eq("week_id", weekId!);
       if (error) throw error;
       return data ?? [];
     },
