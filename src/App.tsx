@@ -8,7 +8,6 @@ import { Toaster } from "@/components/ui/sonner";
 const LoginPage = lazy(() => import("@/pages/Login"));
 const ChangePinPage = lazy(() => import("@/pages/ChangePin"));
 const PrimitivesPage = lazy(() => import("@/pages/Primitives"));
-const Placeholder = lazy(() => import("@/pages/Placeholder"));
 const SettingsPage = lazy(() => import("@/pages/Settings"));
 const SalesInputPage = lazy(() => import("@/pages/SalesInput"));
 const TodayPage = lazy(() => import("@/pages/Today"));
