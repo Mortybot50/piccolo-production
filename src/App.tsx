@@ -15,6 +15,8 @@ const TodayPage = lazy(() => import("@/pages/Today"));
 const StoreOrderPage = lazy(() => import("@/pages/StoreOrder"));
 const CateringPage = lazy(() => import("@/pages/Catering"));
 const SupplierOrdersPage = lazy(() => import("@/pages/SupplierOrders"));
+const InvoicePage = lazy(() => import("@/pages/Invoice"));
+const InvoiceHistoryPage = lazy(() => import("@/pages/InvoiceHistory"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -81,7 +83,7 @@ export default function App() {
                 path="/invoice"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Invoice" phase="Phase H" />
+                    <InvoicePage />
                   </RouteGuard>
                 }
               />
@@ -89,7 +91,7 @@ export default function App() {
                 path="/invoice/:weekNum"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Invoice (week)" phase="Phase H" />
+                    <InvoicePage />
                   </RouteGuard>
                 }
               />
@@ -97,7 +99,7 @@ export default function App() {
                 path="/invoice-history"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Invoice history" phase="Phase H" />
+                    <InvoiceHistoryPage />
                   </RouteGuard>
                 }
               />
