@@ -1,0 +1,92 @@
+# SHEET: Ordering Guide
+dims=A1:H100 max_row=100 max_col=8
+
+ROW 1: A1=ORDERING GUIDE — DATA-DRIVEN
+ROW 2: A2=All recommended quantities calculated from sales data × recipes. Blue = calculated. Yellow = your input.
+ROW 4: A4=OROSO — CHICKEN
+ROW 5: A5=Schedule: | B5=Daily order, 1-day lead. Ordered in PIECES.
+ROW 6: A6=Covers: | B6=Cotoletta (crumbed) + Grilled Chicken (marinated)
+ROW 7: A7=Note: | B7=Thursday order covers Sat + Sun + Mon
+ROW 9: A9=Order Day | B9=Delivery | C9=Covers | D9=Cotoletta | E9=Grilled Chk | F9=Recommended | G9=On Hand | H9=Order Qty
+ROW 10: A10=Sunday | B10=Tuesday | C10=Tue | D10=[FORMULA =ROUND('Sales Averages'!C42+'Sales Averages'!C52,0)][VAL 86] | E10=[FORMULA =ROUND('Sales Averages'!C47,0)][VAL 39] | F10=[FORMULA =MAX(0,ROUND((D10+E10)*(1+Settings!$B$7),0)-G10)][VAL 138] | G10=0 | H10=[FORMULA =F10][VAL 138]
+ROW 11: A11=Monday | B11=Wednesday | C11=Wed | D11=[FORMULA =ROUND('Sales Averages'!D42+'Sales Averages'!D52,0)][VAL 74] | E11=[FORMULA =ROUND('Sales Averages'!D47,0)][VAL 39] | F11=[FORMULA =MAX(0,ROUND((D11+E11)*(1+Settings!$B$7),0)-G11)][VAL 124] | G11=0 | H11=[FORMULA =F11][VAL 124]
+ROW 12: A12=Tuesday | B12=Thursday | C12=Thu | D12=[FORMULA =ROUND('Sales Averages'!E42+'Sales Averages'!E52,0)][VAL 80] | E12=[FORMULA =ROUND('Sales Averages'!E47,0)][VAL 46] | F12=[FORMULA =MAX(0,ROUND((D12+E12)*(1+Settings!$B$7),0)-G12)][VAL 139] | G12=0 | H12=[FORMULA =F12][VAL 139]
+ROW 13: A13=Wednesday | B13=Friday | C13=Fri | D13=[FORMULA =ROUND('Sales Averages'!F42+'Sales Averages'!F52,0)][VAL 101] | E13=[FORMULA =ROUND('Sales Averages'!F47,0)][VAL 41] | F13=[FORMULA =MAX(0,ROUND((D13+E13)*(1+Settings!$B$7),0)-G13)][VAL 156] | G13=0 | H13=[FORMULA =F13][VAL 156]
+ROW 14: A14=Thursday | B14=Saturday | C14=Sat+Sun+Mon | D14=[FORMULA =ROUND('Sales Averages'!G42+G52+'Sales Averages'!H42+H52+'Sales Averages'!B42+B52,0)][VAL 264] | E14=[FORMULA =ROUND('Sales Averages'!G47+'Sales Averages'!H47+'Sales Averages'!B47,0)][VAL 141] | F14=[FORMULA =MAX(0,ROUND((D14+E14)*(1+Settings!$B$7),0)-G14)][VAL 446] | G14=0 | H14=[FORMULA =F14][VAL 446]
+ROW 17: A17=DOM — FRESH PRODUCE
+ROW 18: A18=Schedule: | B18=3× weekly — Mon (order Sun), Wed (order Tue), Fri (order Thu)
+ROW 19: A19=Method: | B19=Weekly need calculated from sales × recipes, split across 3 deliveries
+ROW 20: A20=Note: | B20=Garlic ordered Monday only. Fri delivery higher for weekend.
+ROW 22: A22=WEEKLY REQUIREMENTS (calculated from sales data)
+ROW 23: A23=Ingredient | B23=Driven By | C23=Weekly Need | D23=Unit | E23=Mon Order | F23=Wed Order | G23=Fri Order | H23=Calculation
+ROW 24: A24=Dill | B24=SV batches | C24=[FORMULA =ROUND((('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*10,0)][VAL 12] | D24=bunches | E24=[FORMULA =ROUND(C24/2,0)][VAL 6] | F24=[FORMULA =ROUND(C24/2,0)][VAL 6] | G24=[FORMULA =0][VAL 0] | H24=SV batches × 10 per batch
+ROW 25: A25=Parsley — SV | B25=SV batches | C25=[FORMULA =ROUND((('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*10,0)][VAL 12] | D25=bunches | E25=[FORMULA =ROUND(C25/2,0)][VAL 6] | F25=[FORMULA =ROUND(C25/2,0)][VAL 6] | G25=[FORMULA =0][VAL 0] | H25=SV batches × 10 per batch
+ROW 26: A26=Basil — SV | B26=SV batches | C26=[FORMULA =ROUND((('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*10,0)][VAL 12] | D26=bunches | E26=[FORMULA =ROUND(C26/2,0)][VAL 6] | F26=[FORMULA =ROUND(C26/2,0)][VAL 6] | G26=[FORMULA =0][VAL 0] | H26=SV batches × 10 per batch
+ROW 27: A27=Parsley — crumb | B27=COT volume | C27=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*2,0)][VAL 12] | D27=bunches | E27=[FORMULA =ROUND(C27*2/7,0)][VAL 3] | F27=[FORMULA =ROUND(C27*2/7,0)][VAL 3] | G27=[FORMULA =ROUND(C27*3/7,0)][VAL 5] | H27=COT batches × 2 per 100
+ROW 28: A28=Basil — other | B28=Mayo + peppers | C28=[FORMULA =ROUND((('Sales Averages'!$I$47*Settings!$C$29/1000)/Settings!$B$38)*100/1000+('Sales Averages'!$I$47*Settings!$B$11/1000+'Sales Averages'!$I$53*Settings!$C$31/1000)/48*12*30/1000,1)][VAL 0.3] | D28=kg | E28=[FORMULA =ROUND(C28/3,1)][VAL 0.1] | F28=[FORMULA =ROUND(C28/3,1)][VAL 0.1] | G28=[FORMULA =ROUND(C28/3,1)][VAL 0.1] | H28=Mayo batches × 100g + pepper batches × 30g/tin
+ROW 29: A29=Garlic | B29=SV + pep + mar + dress | C29=[FORMULA =ROUND((('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*10+('Sales Averages'!$I$47*Settings!$B$11/1000+'Sales Averages'!$I$53*Settings!$C$31/1000)/48*12*8+('Sales Averages'!$I$47/Settings!$B$40)*14/5+('Sales Averages'!$I$47/Settings!$B$40)*6/5,0)][VAL 160] | D29=cloves | E29=[FORMULA =C29][VAL 160] | F29=[FORMULA =0][VAL 0] | G29=[FORMULA =0][VAL 0] | H29=WEEKLY — Mon only
+ROW 30: A30=Onions — pickling | B30=PO batches | C30=[FORMULA =ROUND(((('Sales Averages'!$I$42+'Sales Averages'!$I$52)*Settings!$C$25/1000+'Sales Averages'!$I$54*Settings!$C$25/1000)/Settings!$B$37)*20,0)][VAL 28] | D30=kg | E30=[FORMULA =ROUND(C30/2,0)][VAL 14] | F30=[FORMULA =ROUND(C30/2,0)][VAL 14] | G30=[FORMULA =0][VAL 0] | H30=PO batches × 20kg per batch
+ROW 31: A31=Onions — salad | B31=GC volume | C31=[FORMULA =ROUND(('Sales Averages'!$I$47/Settings!$B$40)*80/1000,1)][VAL 2.4] | D31=kg | E31=[FORMULA =ROUND(C31/3,1)][VAL 0.8] | F31=[FORMULA =ROUND(C31/3,1)][VAL 0.8] | G31=[FORMULA =ROUND(C31/3,1)][VAL 0.8] | H31=GC serves × 80g/10
+ROW 32: A32=Tomatoes 4kg tubs | B32=CAP + TOM add-on | C32=[FORMULA =CEILING((('Sales Averages'!$I$43+'Sales Averages'!$I$55)*Settings!$C$27/1000)/4,1)][VAL 11] | D32=tubs | E32=[FORMULA =ROUND(C32/3,0)][VAL 4] | F32=[FORMULA =ROUND(C32/3,0)][VAL 4] | G32=[FORMULA =C32-E32-F32][VAL 3] | H32=Total kg ÷ 4kg/tub
+ROW 33: A33=Salad vegetables | B33=GC volume | C33=[FORMULA =ROUND('Sales Averages'!$I$47,0)][VAL 305] | D33=serves | E33=[FORMULA =ROUND(C33*2/7,0)][VAL 87] | F33=[FORMULA =ROUND(C33*2/7,0)][VAL 87] | G33=[FORMULA =ROUND(C33*3/7,0)][VAL 131] | H33=GC weekly = serves needed
+ROW 35: A35=MONDAY DELIVERY — order form
+ROW 36: A36=Ingredient | B36=Recommended | C36=Unit | D36=On Hand | E36=Order Qty | F36=Override | H36=Notes
+ROW 37: A37=Dill | B37=[FORMULA =E24][VAL 6] | C37=bunches | E37=[FORMULA =IF(F37<>"",F37,MAX(0,B37-D37))][VAL 6]
+ROW 38: A38=Parsley — SV | B38=[FORMULA =E25][VAL 6] | C38=bunches | E38=[FORMULA =IF(F38<>"",F38,MAX(0,B38-D38))][VAL 6]
+ROW 39: A39=Basil — SV | B39=[FORMULA =E26][VAL 6] | C39=bunches | E39=[FORMULA =IF(F39<>"",F39,MAX(0,B39-D39))][VAL 6]
+ROW 40: A40=Parsley — crumb | B40=[FORMULA =E27][VAL 3] | C40=bunches | E40=[FORMULA =IF(F40<>"",F40,MAX(0,B40-D40))][VAL 3]
+ROW 41: A41=Basil — other | B41=[FORMULA =E28][VAL 0.1] | C41=kg | E41=[FORMULA =IF(F41<>"",F41,MAX(0,B41-D41))][VAL 0.1]
+ROW 42: A42=Garlic | B42=[FORMULA =E29][VAL 160] | C42=cloves | E42=[FORMULA =IF(F42<>"",F42,MAX(0,B42-D42))][VAL 160]
+ROW 43: A43=Onions — pickling | B43=[FORMULA =E30][VAL 14] | C43=kg | E43=[FORMULA =IF(F43<>"",F43,MAX(0,B43-D43))][VAL 14]
+ROW 44: A44=Onions — salad | B44=[FORMULA =E31][VAL 0.8] | C44=kg | E44=[FORMULA =IF(F44<>"",F44,MAX(0,B44-D44))][VAL 0.8]
+ROW 45: A45=Tomatoes 4kg tubs | B45=[FORMULA =E32][VAL 4] | C45=tubs | E45=[FORMULA =IF(F45<>"",F45,MAX(0,B45-D45))][VAL 4]
+ROW 46: A46=Salad vegetables | B46=[FORMULA =E33][VAL 87] | C46=serves | E46=[FORMULA =IF(F46<>"",F46,MAX(0,B46-D46))][VAL 87]
+ROW 48: A48=WEDNESDAY DELIVERY — order form
+ROW 49: A49=Ingredient | B49=Recommended | C49=Unit | D49=On Hand | E49=Order Qty | F49=Override | H49=Notes
+ROW 50: A50=Dill | B50=[FORMULA =F24][VAL 6] | C50=bunches | E50=[FORMULA =IF(F50<>"",F50,MAX(0,B50-D50))][VAL 6]
+ROW 51: A51=Parsley — SV | B51=[FORMULA =F25][VAL 6] | C51=bunches | E51=[FORMULA =IF(F51<>"",F51,MAX(0,B51-D51))][VAL 6]
+ROW 52: A52=Basil — SV | B52=[FORMULA =F26][VAL 6] | C52=bunches | E52=[FORMULA =IF(F52<>"",F52,MAX(0,B52-D52))][VAL 6]
+ROW 53: A53=Parsley — crumb | B53=[FORMULA =F27][VAL 3] | C53=bunches | E53=[FORMULA =IF(F53<>"",F53,MAX(0,B53-D53))][VAL 3]
+ROW 54: A54=Basil — other | B54=[FORMULA =F28][VAL 0.1] | C54=kg | E54=[FORMULA =IF(F54<>"",F54,MAX(0,B54-D54))][VAL 0.1]
+ROW 55: A55=Garlic | B55=[FORMULA =F29][VAL 0] | C55=cloves | E55=[FORMULA =IF(F55<>"",F55,MAX(0,B55-D55))][VAL 0]
+ROW 56: A56=Onions — pickling | B56=[FORMULA =F30][VAL 14] | C56=kg | E56=[FORMULA =IF(F56<>"",F56,MAX(0,B56-D56))][VAL 14]
+ROW 57: A57=Onions — salad | B57=[FORMULA =F31][VAL 0.8] | C57=kg | E57=[FORMULA =IF(F57<>"",F57,MAX(0,B57-D57))][VAL 0.8]
+ROW 58: A58=Tomatoes 4kg tubs | B58=[FORMULA =F32][VAL 4] | C58=tubs | E58=[FORMULA =IF(F58<>"",F58,MAX(0,B58-D58))][VAL 4]
+ROW 59: A59=Salad vegetables | B59=[FORMULA =F33][VAL 87] | C59=serves | E59=[FORMULA =IF(F59<>"",F59,MAX(0,B59-D59))][VAL 87]
+ROW 61: A61=FRIDAY DELIVERY — order form
+ROW 62: A62=Ingredient | B62=Recommended | C62=Unit | D62=On Hand | E62=Order Qty | F62=Override | H62=Notes
+ROW 63: A63=Dill | B63=[FORMULA =G24][VAL 0] | C63=bunches | E63=[FORMULA =IF(F63<>"",F63,MAX(0,B63-D63))][VAL 0]
+ROW 64: A64=Parsley — SV | B64=[FORMULA =G25][VAL 0] | C64=bunches | E64=[FORMULA =IF(F64<>"",F64,MAX(0,B64-D64))][VAL 0]
+ROW 65: A65=Basil — SV | B65=[FORMULA =G26][VAL 0] | C65=bunches | E65=[FORMULA =IF(F65<>"",F65,MAX(0,B65-D65))][VAL 0]
+ROW 66: A66=Parsley — crumb | B66=[FORMULA =G27][VAL 5] | C66=bunches | E66=[FORMULA =IF(F66<>"",F66,MAX(0,B66-D66))][VAL 5]
+ROW 67: A67=Basil — other | B67=[FORMULA =G28][VAL 0.1] | C67=kg | E67=[FORMULA =IF(F67<>"",F67,MAX(0,B67-D67))][VAL 0.1]
+ROW 68: A68=Garlic | B68=[FORMULA =G29][VAL 0] | C68=cloves | E68=[FORMULA =IF(F68<>"",F68,MAX(0,B68-D68))][VAL 0]
+ROW 69: A69=Onions — pickling | B69=[FORMULA =G30][VAL 0] | C69=kg | E69=[FORMULA =IF(F69<>"",F69,MAX(0,B69-D69))][VAL 0]
+ROW 70: A70=Onions — salad | B70=[FORMULA =G31][VAL 0.8] | C70=kg | E70=[FORMULA =IF(F70<>"",F70,MAX(0,B70-D70))][VAL 0.8]
+ROW 71: A71=Tomatoes 4kg tubs | B71=[FORMULA =G32][VAL 3] | C71=tubs | E71=[FORMULA =IF(F71<>"",F71,MAX(0,B71-D71))][VAL 3]
+ROW 72: A72=Salad vegetables | B72=[FORMULA =G33][VAL 131] | C72=serves | E72=[FORMULA =IF(F72<>"",F72,MAX(0,B72-D72))][VAL 131]
+ROW 75: A75=ARZ — DRY GOODS
+ROW 76: A76=Schedule: | B76=Weekly — order Sunday → delivery Monday
+ROW 77: A77=Method: | B77=Weekly need calculated from sales × recipe quantities
+ROW 79: A79=WEEKLY ORDER (order Sunday → delivery Monday)
+ROW 80: A80=Ingredient | B80=Driven By | C80=Weekly Need | D80=Unit | E80=On Hand | F80=Recommended | G80=Order Qty | H80=Calculation
+ROW 81: A81=Blend oil | B81=SV batches | C81=[FORMULA =ROUND((('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*14,0)][VAL 16] | D81=litres | F81=[FORMULA =MAX(0,ROUND(C81-E81,1))][VAL 16] | G81=[FORMULA =F81][VAL 16] | H81=SV batches × 14L
+ROW 82: A82=White vinegar | B82=PO batches | C82=[FORMULA =ROUND(((('Sales Averages'!$I$42+'Sales Averages'!$I$52)*Settings!$C$25/1000+'Sales Averages'!$I$54*Settings!$C$25/1000)/Settings!$B$37)*10,0)][VAL 14] | D82=litres | F82=[FORMULA =MAX(0,ROUND(C82-E82,1))][VAL 14] | G82=[FORMULA =F82][VAL 14] | H82=PO batches × 10L
+ROW 83: A83=Sugar 15kg | B83=PO batches | C83=[FORMULA =ROUND(((('Sales Averages'!$I$42+'Sales Averages'!$I$52)*Settings!$C$25/1000+'Sales Averages'!$I$54*Settings!$C$25/1000)/Settings!$B$37)*4,0)][VAL 6] | D83=kg | F83=[FORMULA =MAX(0,ROUND(C83-E83,1))][VAL 6] | G83=[FORMULA =F83][VAL 6] | H83=PO batches × 4kg
+ROW 84: A84=Plain flour | B84=COT volume | C84=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*650/1000,1)][VAL 4] | D84=kg | F84=[FORMULA =MAX(0,ROUND(C84-E84,1))][VAL 4] | G84=[FORMULA =F84][VAL 4] | H84=COT/100 × 650g
+ROW 85: A85=Panko breadcrumbs | B85=COT volume | C85=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*2.5,1)][VAL 15.3] | D85=kg | F85=[FORMULA =MAX(0,ROUND(C85-E85,1))][VAL 15.3] | G85=[FORMULA =F85][VAL 15.3] | H85=COT/100 × 2.5kg
+ROW 86: A86=Dried thyme | B86=COT volume | C86=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*60,0)][VAL 366] | D86=grams | F86=[FORMULA =MAX(0,ROUND(C86-E86,1))][VAL 366] | G86=[FORMULA =F86][VAL 366] | H86=COT/100 × 60g
+ROW 87: A87=Dried oregano | B87=COT + GC | C87=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*60+('Sales Averages'!$I$47/Settings!$B$40)*4,0)][VAL 488] | D87=grams | F87=[FORMULA =MAX(0,ROUND(C87-E87,1))][VAL 488] | G87=[FORMULA =F87][VAL 488] | H87=Crumb 60g + mar 4g/10
+ROW 88: A88=Red wine vinegar | B88=PO + dressing | C88=[FORMULA =ROUND(((('Sales Averages'!$I$42+'Sales Averages'!$I$52)*Settings!$C$25/1000+'Sales Averages'!$I$54*Settings!$C$25/1000)/Settings!$B$37)*10+('Sales Averages'!$I$47/Settings!$B$40)*36/1000,1)][VAL 14.9] | D88=litres | F88=[FORMULA =MAX(0,ROUND(C88-E88,1))][VAL 14.9] | G88=[FORMULA =F88][VAL 14.9] | H88=PO 10L + dress 36g/10
+ROW 89: A89=EVOO | B89=Dress + mar + pep | C89=[FORMULA =ROUND(('Sales Averages'!$I$47/Settings!$B$40)*90/1000+('Sales Averages'!$I$47/Settings!$B$40)*60/1000+('Sales Averages'!$I$47*Settings!$B$11/1000+'Sales Averages'!$I$53*Settings!$C$31/1000)/48*12*250/1000,1)][VAL 5.4] | D89=litres | F89=[FORMULA =MAX(0,ROUND(C89-E89,1))][VAL 5.4] | G89=[FORMULA =F89][VAL 5.4] | H89=Dress+mar+peppers
+ROW 90: A90=Cooking salt | B90=All prep | C90=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*60+(('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*100+('Sales Averages'!$I$47/Settings!$B$40)*27,0)][VAL 1308] | D90=grams | F90=[FORMULA =MAX(0,ROUND(C90-E90,1))][VAL 1308] | G90=[FORMULA =F90][VAL 1308] | H90=Crumb+SV+GC+dress
+ROW 91: A91=Garlic powder | B91=COT volume | C91=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*30,0)][VAL 183] | D91=grams | F91=[FORMULA =MAX(0,ROUND(C91-E91,1))][VAL 183] | G91=[FORMULA =F91][VAL 183] | H91=COT/100 × 30g
+ROW 92: A92=Parmesan | B92=COT volume | C92=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*80,0)][VAL 488] | D92=grams | F92=[FORMULA =MAX(0,ROUND(C92-E92,1))][VAL 488] | G92=[FORMULA =F92][VAL 488] | H92=COT/100 × 80g
+ROW 93: A93=Black pepper | B93=Crumb + dress | C93=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*4+('Sales Averages'!$I$47/Settings!$B$40)*2,0)][VAL 85] | D93=grams | F93=[FORMULA =MAX(0,ROUND(C93-E93,1))][VAL 85] | G93=[FORMULA =F93][VAL 85] | H93=Crumb 4g + dress 2g/10
+ROW 94: A94=Mayo base 20kg | B94=Mayo batches | C94=[FORMULA =ROUND((('Sales Averages'!$I$47*Settings!$C$29/1000)/Settings!$B$38)*4,1)][VAL 6.1] | D94=kg | F94=[FORMULA =MAX(0,ROUND(C94-E94,1))][VAL 6.1] | G94=[FORMULA =F94][VAL 6.1] | H94=Mayo batches × 4kg
+ROW 95: A95=Honey 3kg | B95=GC marinade | C95=[FORMULA =ROUND(('Sales Averages'!$I$47/Settings!$B$40)*6/1000,2)][VAL 0.18] | D95=kg | F95=[FORMULA =MAX(0,ROUND(C95-E95,1))][VAL 0.2] | G95=[FORMULA =F95][VAL 0.2] | H95=GC/10 × 6g
+ROW 96: A96=Lemon juice 2L | B96=SV + mar + mayo | C96=[FORMULA =ROUND((('Sales Averages'!$I$42*Settings!$C$26/1000)/Settings!$B$36)*150/1000+('Sales Averages'!$I$47/Settings!$B$40)*40/1000+(('Sales Averages'!$I$47*Settings!$C$29/1000)/Settings!$B$38)*200/1000,1)][VAL 1.7] | D96=litres | F96=[FORMULA =MAX(0,ROUND(C96-E96,1))][VAL 1.7] | G96=[FORMULA =F96][VAL 1.7] | H96=SV+mar+mayo
+ROW 97: A97=Eggs | B97=COT volume | C97=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*18,0)][VAL 110] | D97=eggs | F97=[FORMULA =MAX(0,ROUND(C97-E97,1))][VAL 110] | G97=[FORMULA =F97][VAL 110] | H97=COT/100 × 18 eggs
+ROW 98: A98=Pepper tins 4kg | B98=Pepper demand | C98=[FORMULA =CEILING(('Sales Averages'!$I$47*Settings!$B$11/1000+'Sales Averages'!$I$53*Settings!$C$31/1000)/4,1)][VAL 4] | D98=tins | F98=[FORMULA =MAX(0,ROUND(C98-E98,1))][VAL 4] | G98=[FORMULA =F98][VAL 4] | H98=Pepper kg ÷ 4kg/tin
+ROW 99: A99=Milk | B99=COT volume | C99=[FORMULA =ROUND((('Sales Averages'!$I$42+'Sales Averages'!$I$52)/Settings!$B$39)*2,0)][VAL 12] | D99=litres | F99=[FORMULA =MAX(0,ROUND(C99-E99,1))][VAL 12] | G99=[FORMULA =F99][VAL 12] | H99=COT/100 × 2L
+ROW 100: A100=Pistachios | B100=Fixed par | C100=[FORMULA =6][VAL 6] | D100=bags | F100=[FORMULA =MAX(0,ROUND(C100-E100,1))][VAL 6] | G100=[FORMULA =F100][VAL 6] | H100=TBC — fixed par

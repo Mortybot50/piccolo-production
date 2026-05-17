@@ -1,0 +1,43 @@
+# SHEET: Weekly Invoice
+dims=A1:H44 max_row=44 max_col=8
+
+ROW 1: A1=PICCOLO PRODUCTION
+ROW 2: A2=Weekly Invoice — Store Deliveries
+ROW 4: A4=Week ending: | D4=Week starting: | E4=[FORMULA =$B$4-6][VAL 1899-12-24 00:00:00] | G4=Invoice date:
+ROW 6: A6=PICCOLO PRODUCTION → HAWTHORN
+ROW 7: A7=Period: | B7=[FORMULA =TEXT($E$4,"DD/MM/YYYY")&" — "&TEXT($B$4,"DD/MM/YYYY")][VAL #VALUE!]
+ROW 8: A8=Prep Item | B8=Unit | C8=Qty Delivered | D8=Unit Cost ($) | E8=Line Total ($)
+ROW 9: A9=Cotoletta (crumbed) | B9=pcs | C9=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A9)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D9=[FORMULA =Settings!$C$48][VAL 2.5] | E9=[FORMULA =IF(D9="","",C9*D9)][VAL 0]
+ROW 10: A10=Marinated Chicken | B10=pcs | C10=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A10)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D10=[FORMULA =Settings!$C$49][VAL 2] | E10=[FORMULA =IF(D10="","",C10*D10)][VAL 0]
+ROW 11: A11=Pickled Onions | B11=kg | C11=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A11)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D11=[FORMULA =Settings!$C$50][VAL 5] | E11=[FORMULA =IF(D11="","",C11*D11)][VAL 0]
+ROW 12: A12=Salsa Verde | B12=kg | C12=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A12)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D12=[FORMULA =Settings!$C$51][VAL 8] | E12=[FORMULA =IF(D12="","",C12*D12)][VAL 0]
+ROW 13: A13=Tomatoes (Cut) | B13=kg | C13=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A13)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D13=[FORMULA =Settings!$C$52][VAL 6] | E13=[FORMULA =IF(D13="","",C13*D13)][VAL 0]
+ROW 14: A14=Salad Mix | B14=kg | C14=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A14)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D14=[FORMULA =Settings!$C$53][VAL 10] | E14=[FORMULA =IF(D14="","",C14*D14)][VAL 0]
+ROW 15: A15=Mayo | B15=kg | C15=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A15)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D15=[FORMULA =Settings!$C$54][VAL 8] | E15=[FORMULA =IF(D15="","",C15*D15)][VAL 0]
+ROW 16: A16=Dressing | B16=L | C16=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A16)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D16=[FORMULA =Settings!$C$55][VAL 6] | E16=[FORMULA =IF(D16="","",C16*D16)][VAL 0]
+ROW 17: A17=Roasted Peppers | B17=kg | C17=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A17)*('Prep Log'!$F$5:$F$1642))][VAL 0] | D17=[FORMULA =Settings!$C$56][VAL 7] | E17=[FORMULA =IF(D17="","",C17*D17)][VAL 0]
+ROW 18: D18=TOTAL | E18=[FORMULA =SUM(E9:E17)][VAL 0]
+ROW 20: A20=PICCOLO PRODUCTION → SOUTH YARRA
+ROW 21: A21=Period: | B21=[FORMULA =TEXT($E$4,"DD/MM/YYYY")&" — "&TEXT($B$4,"DD/MM/YYYY")][VAL #VALUE!]
+ROW 22: A22=Prep Item | B22=Unit | C22=Qty Delivered | D22=Unit Cost ($) | E22=Line Total ($)
+ROW 23: A23=Cotoletta (crumbed) | B23=pcs | C23=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A23)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D23=[FORMULA =Settings!$C$48][VAL 2.5] | E23=[FORMULA =IF(D23="","",C23*D23)][VAL 0]
+ROW 24: A24=Marinated Chicken | B24=pcs | C24=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A24)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D24=[FORMULA =Settings!$C$49][VAL 2] | E24=[FORMULA =IF(D24="","",C24*D24)][VAL 0]
+ROW 25: A25=Pickled Onions | B25=kg | C25=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A25)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D25=[FORMULA =Settings!$C$50][VAL 5] | E25=[FORMULA =IF(D25="","",C25*D25)][VAL 0]
+ROW 26: A26=Salsa Verde | B26=kg | C26=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A26)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D26=[FORMULA =Settings!$C$51][VAL 8] | E26=[FORMULA =IF(D26="","",C26*D26)][VAL 0]
+ROW 27: A27=Tomatoes (Cut) | B27=kg | C27=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A27)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D27=[FORMULA =Settings!$C$52][VAL 6] | E27=[FORMULA =IF(D27="","",C27*D27)][VAL 0]
+ROW 28: A28=Salad Mix | B28=kg | C28=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A28)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D28=[FORMULA =Settings!$C$53][VAL 10] | E28=[FORMULA =IF(D28="","",C28*D28)][VAL 0]
+ROW 29: A29=Mayo | B29=kg | C29=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A29)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D29=[FORMULA =Settings!$C$54][VAL 8] | E29=[FORMULA =IF(D29="","",C29*D29)][VAL 0]
+ROW 30: A30=Dressing | B30=L | C30=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A30)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D30=[FORMULA =Settings!$C$55][VAL 6] | E30=[FORMULA =IF(D30="","",C30*D30)][VAL 0]
+ROW 31: A31=Roasted Peppers | B31=kg | C31=[FORMULA =SUMPRODUCT(('Prep Log'!$A$5:$A$1642>=$E$4)*('Prep Log'!$A$5:$A$1642<=$B$4)*('Prep Log'!$C$5:$C$1642=A31)*('Prep Log'!$G$5:$G$1642))][VAL 0] | D31=[FORMULA =Settings!$C$56][VAL 7] | E31=[FORMULA =IF(D31="","",C31*D31)][VAL 0]
+ROW 32: D32=TOTAL | E32=[FORMULA =SUM(E23:E31)][VAL 0]
+ROW 34: A34=WEEKLY PRODUCTION SUMMARY
+ROW 35: A35=Prep Item | B35=Unit | C35=Total Qty | D35=HAW | E35=SY
+ROW 36: A36=Cotoletta (crumbed) | B36=pcs | C36=[FORMULA =C9+C23][VAL 0] | D36=[FORMULA =C9][VAL 0] | E36=[FORMULA =C23][VAL 0]
+ROW 37: A37=Marinated Chicken | B37=pcs | C37=[FORMULA =C10+C24][VAL 0] | D37=[FORMULA =C10][VAL 0] | E37=[FORMULA =C24][VAL 0]
+ROW 38: A38=Pickled Onions | B38=kg | C38=[FORMULA =C11+C25][VAL 0] | D38=[FORMULA =C11][VAL 0] | E38=[FORMULA =C25][VAL 0]
+ROW 39: A39=Salsa Verde | B39=kg | C39=[FORMULA =C12+C26][VAL 0] | D39=[FORMULA =C12][VAL 0] | E39=[FORMULA =C26][VAL 0]
+ROW 40: A40=Tomatoes (Cut) | B40=kg | C40=[FORMULA =C13+C27][VAL 0] | D40=[FORMULA =C13][VAL 0] | E40=[FORMULA =C27][VAL 0]
+ROW 41: A41=Salad Mix | B41=kg | C41=[FORMULA =C14+C28][VAL 0] | D41=[FORMULA =C14][VAL 0] | E41=[FORMULA =C28][VAL 0]
+ROW 42: A42=Mayo | B42=kg | C42=[FORMULA =C15+C29][VAL 0] | D42=[FORMULA =C15][VAL 0] | E42=[FORMULA =C29][VAL 0]
+ROW 43: A43=Dressing | B43=L | C43=[FORMULA =C16+C30][VAL 0] | D43=[FORMULA =C16][VAL 0] | E43=[FORMULA =C30][VAL 0]
+ROW 44: A44=Roasted Peppers | B44=kg | C44=[FORMULA =C17+C31][VAL 0] | D44=[FORMULA =C17][VAL 0] | E44=[FORMULA =C31][VAL 0]

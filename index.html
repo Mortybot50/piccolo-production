@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#d97706" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta property="og:title" content="Piccolo Production" />
+    <meta property="og:description" content="Production and wholesale operations for Piccolo Panini Bar's enterprise division." />
+    <meta property="og:image" content="/og.png" />
+    <meta property="og:type" content="website" />
+    <title>Piccolo Production</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="ppb-error" style="display:none;position:fixed;inset:0;padding:20px;
+      background:#7f1d1d;color:#fff;overflow:auto;font:12px/1.4 ui-monospace,monospace;z-index:9999">
+      <h1 style="font:600 14px/1 -apple-system,sans-serif;margin:0 0 12px">Error caught</h1>
+      <pre id="ppb-error-text" style="white-space:pre-wrap;margin:0"></pre>
+    </div>
+    <script>
+    (function(){
+      var el=document.getElementById('ppb-error'), t=document.getElementById('ppb-error-text'), L=[];
+      function show(){t.textContent=L.join('\n\n');el.style.display='block';}
+      window.addEventListener('error',function(e){
+        L.push('window.error: '+(e.message||'unknown'));
+        if(e.error&&e.error.stack)L.push('  stack: '+e.error.stack.substring(0,800));
+        show();
+      },true);
+      window.addEventListener('unhandledrejection',function(e){
+        var r=e.reason;
+        L.push('unhandledrejection: '+(r&&r.message?r.message:String(r)));
+        if(r&&r.stack)L.push('  stack: '+r.stack.substring(0,800));
+        show();
+      });
+      setTimeout(function(){
+        var root=document.getElementById('root');
+        if(root&&root.children.length===0&&L.length===0){
+          L.push('TIMEOUT: React did not mount within 5 seconds.');
+          L.push('userAgent: '+navigator.userAgent);
+          L.push('localStorage keys: '+Object.keys(localStorage).join(', '));
+          show();
+        }
+      },5000);
+    })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

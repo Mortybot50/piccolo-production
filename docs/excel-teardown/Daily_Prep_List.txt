@@ -1,0 +1,27 @@
+# SHEET: Daily Prep List
+dims=A1:J28 max_row=28 max_col=10
+
+ROW 1: A1=PICCOLO PRODUCTION — DAILY PREP LIST
+ROW 2: A2=Select day. Enter catering. Add-on demand auto-included from sales data.
+ROW 4: A4=DAY OF WEEK: | B4=Monday | D4=Buffer: | E4=[FORMULA =Settings!$B$7][VAL 0.1] | G4=Latest Wk: | H4=[FORMULA =Settings!$B$6][VAL 6]
+ROW 6: A6=▶ CATERING — panini quantities for today's catering orders
+ROW 7: A7=Menu Item | B7=Catering Qty
+ROW 8: A8=COTOLETTA | B8=0
+ROW 9: A9=CAPRESE | B9=0
+ROW 10: A10=PROSCIUTTO | B10=0
+ROW 11: A11=MORTADELLA | B11=0
+ROW 12: A12=THE DELI | B12=0
+ROW 13: A13=GRILLED CHICKEN | B13=0
+ROW 15: A15=▶ MORNING PREP — Crumb & Cut (panini + add-ons + catering)
+ROW 16: A16=Prep Item | B16=Panini Avg | C16=Add-on Avg | D16=Catering | E16=Total + Buffer | F16=HAW | G16=SY | H16=Override Total | I16=Override HAW | J16=Override SY
+ROW 17: A17=Cotoletta (crumbed) | B17=[FORMULA =INDEX('Sales Averages'!B42:H42,MATCH($B$4,{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"},0))][VAL 72.25] | C17=[FORMULA =INDEX('Sales Averages'!B52:H52,MATCH($B$4,{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"},0))][VAL 2] | D17=[FORMULA =B8][VAL 0] | E17=[FORMULA =IF(H17<>"",H17,ROUND((B17+C17)*(1+Settings!$B$7)+D17,0))][VAL 82] | F17=[FORMULA =IF(I17<>"",I17,ROUND(E17*Settings!$B$14,0))][VAL 52] | G17=[FORMULA =IF(J17<>"",J17,ROUND(E17*Settings!$C$14,0))][VAL 30]
+ROW 18: A18=Tomatoes (Cut) | B18=[FORMULA =ROUND(INDEX('Sales Averages'!B43:H43,MATCH($B$4,{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"},0))*Settings!$C$27/1000,1)][VAL 4.4] | C18=[FORMULA =ROUND(INDEX('Sales Averages'!B55:H55,MATCH($B$4,{"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"},0))*Settings!$C$27/1000,1)][VAL 0.6] | D18=[FORMULA =ROUND(B9*Settings!$C$27/1000,1)][VAL 0] | E18=[FORMULA =IF(H18<>"",H18,ROUND((B18+C18)*(1+Settings!$B$7)+D18,1))][VAL 5.5] | F18=[FORMULA =IF(I18<>"",I18,ROUND(E18*Settings!$B$15,1))][VAL 3.4] | G18=[FORMULA =IF(J18<>"",J18,ROUND(E18*Settings!$C$15,1))][VAL 2.1]
+ROW 20: A20=▶ BATCH PREP — Weekly Demand (panini + add-ons + catering)
+ROW 21: A21=Prep Item | B21=Panini Demand | C21=Add-on Demand | D21=Catering | E21=Total | F21=Stock On Hand | G21=Qty Needed | H21=Prep Today? | I21=Override | J21=Notes
+ROW 22: A22=Marinated Chicken | B22=[FORMULA ='Sales Averages'!I47][VAL 305.25] | C22=[FORMULA =0][VAL 0] | D22=[FORMULA =B13][VAL 0] | E22=[FORMULA =B22+C22+D22][VAL 305.25] | G22=[FORMULA =IF(I22<>"",I22,MAX(0,E22-F22))][VAL 305.25] | H22=[FORMULA =IF(G22>0,"YES","—")][VAL YES]
+ROW 23: A23=Pickled Onions | B23=[FORMULA =ROUND('Sales Averages'!I42*Settings!$C$25/1000,1)][VAL 26.5] | C23=[FORMULA =ROUND('Sales Averages'!I54*Settings!$C$25/1000,1)][VAL 0.2] | D23=[FORMULA =ROUND(B8*Settings!$C$25/1000,1)][VAL 0] | E23=[FORMULA =B23+C23+D23][VAL 26.7] | G23=[FORMULA =IF(I23<>"",I23,MAX(0,E23-F23))][VAL 26.7] | H23=[FORMULA =IF(G23>0,"YES","—")][VAL YES]
+ROW 24: A24=Salsa Verde | B24=[FORMULA =ROUND('Sales Averages'!I42*Settings!$C$26/1000,1)][VAL 23.5] | C24=[FORMULA =0][VAL 0] | D24=[FORMULA =ROUND(B8*Settings!$C$26/1000,1)][VAL 0] | E24=[FORMULA =B24+C24+D24][VAL 23.5] | G24=[FORMULA =IF(I24<>"",I24,MAX(0,E24-F24))][VAL 23.5] | H24=[FORMULA =IF(G24>0,"YES","—")][VAL YES]
+ROW 25: A25=Salad Mix | B25=[FORMULA =ROUND('Sales Averages'!I47*Settings!$C$28/1000,1)][VAL 42.7] | C25=[FORMULA =0][VAL 0] | D25=[FORMULA =ROUND(B13*Settings!$C$28/1000,1)][VAL 0] | E25=[FORMULA =B25+C25+D25][VAL 42.7] | G25=[FORMULA =IF(I25<>"",I25,MAX(0,E25-F25))][VAL 42.7] | H25=[FORMULA =IF(G25>0,"YES","—")][VAL YES]
+ROW 26: A26=Mayo | B26=[FORMULA =ROUND('Sales Averages'!I47*Settings!$C$29/1000,1)][VAL 6.1] | C26=[FORMULA =0][VAL 0] | D26=[FORMULA =ROUND(B13*Settings!$C$29/1000,1)][VAL 0] | E26=[FORMULA =B26+C26+D26][VAL 6.1] | G26=[FORMULA =IF(I26<>"",I26,MAX(0,E26-F26))][VAL 6.1] | H26=[FORMULA =IF(G26>0,"YES","—")][VAL YES]
+ROW 27: A27=Dressing | B27=[FORMULA =ROUND('Sales Averages'!I47*Settings!$C$30/1000,1)][VAL 4.6] | C27=[FORMULA =0][VAL 0] | D27=[FORMULA =ROUND(B13*Settings!$C$30/1000,1)][VAL 0] | E27=[FORMULA =B27+C27+D27][VAL 4.6] | G27=[FORMULA =IF(I27<>"",I27,MAX(0,E27-F27))][VAL 4.6] | H27=[FORMULA =IF(G27>0,"YES","—")][VAL YES]
+ROW 28: A28=Roasted Peppers | B28=[FORMULA =ROUND('Sales Averages'!I47*Settings!$B$11/1000,1)][VAL 6.1] | C28=[FORMULA =ROUND('Sales Averages'!I53*Settings!$C$31/1000,1)][VAL 6.9] | D28=[FORMULA =ROUND(B13*Settings!$B$11/1000,1)][VAL 0] | E28=[FORMULA =B28+C28+D28][VAL 13] | G28=[FORMULA =IF(I28<>"",I28,MAX(0,E28-F28))][VAL 13] | H28=[FORMULA =IF(G28>0,"YES","—")][VAL YES]

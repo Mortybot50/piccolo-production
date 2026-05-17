@@ -1,0 +1,7 @@
+project_id = "piccolo-production"
+
+[functions.pin-login]
+verify_jwt = false
+
+[functions.pin-change]
+verify_jwt = true

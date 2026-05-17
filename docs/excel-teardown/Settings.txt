@@ -1,0 +1,103 @@
+# SHEET: Settings
+dims=A1:G108 max_row=108 max_col=7
+
+ROW 1: A1=PICCOLO PRODUCTION — SETTINGS
+ROW 2: A2=Single source of truth. Yellow = editable.
+ROW 4: A4=GLOBAL SETTINGS
+ROW 5: A5=Setting | B5=Value | C5=Unit | D5=Notes
+ROW 6: A6=Latest Week # | B6=6 | C6=# | D6=Update each Monday
+ROW 7: A7=Buffer % | B7=0.1 | C7=% | D7=Applied to all prep
+ROW 8: A8=Waste Threshold | B8=0.05 | C8=% | D8=Flag waste above this
+ROW 9: A9=Tomatoes Weekly Par | B9=50 | C9=kg | D9=DOM Mon/Wed/Fri
+ROW 10: A10=Peppers Weekly Par (legacy) | B10=48 | C10=kg | D10=NO LONGER USED — peppers now calculated from sales data + portions above
+ROW 11: A11=Peppers — Salad Sub-portion | B11=20 | C11=g | D11=Per GC panini (200g/10 serves in Panzanella)
+ROW 12: A12=STORE SPLITS
+ROW 13: A13=Menu Item | B13=HAW % | C13=SY % | D13=Source
+ROW 14: A14=COTOLETTA | B14=0.63 | C14=0.37 | D14=From sales data
+ROW 15: A15=CAPRESE | B15=0.623 | C15=0.377 | D15=From sales data
+ROW 16: A16=PROSCIUTTO | B16=0.658 | C16=0.342 | D16=From sales data
+ROW 17: A17=MORTADELLA | B17=0.606 | C17=0.394 | D17=From sales data
+ROW 18: A18=THE DELI | B18=0.595 | C18=0.405 | D18=From sales data
+ROW 19: A19=GRILLED CHICKEN | B19=0.515 | C19=0.485 | D19=From sales data
+ROW 21: A21=PREP ITEM CONFIGURATION
+ROW 22: A22=# | B22=Prep Item | C22=Portion | D22=Unit | E22=Shelf Life | F22=Batch Size | G22=Frequency
+ROW 23: A23=1 | B23=Cotoletta (crumbed) | C23=150 | D23=pcs | E23=1 day | F23=Per order | G23=Daily AM
+ROW 24: A24=2 | B24=Marinated Chicken | C24=150 | D24=pcs | E24=4 days | F24=Per order | G24=Daily, big Fri
+ROW 25: A25=3 | B25=Pickled Onions | C25=45 | D25=g | E25=7 days | F25=20 kg | G25=2×/week
+ROW 26: A26=4 | B26=Salsa Verde | C26=40 | D26=g | E26=7 days | F26=~20 L | G26=2×/week
+ROW 27: A27=5 | B27=Tomatoes (Cut) | C27=150 | D27=g | E27=1 day | F27=4 kg tub | G27=Daily AM
+ROW 28: A28=6 | B28=Salad Mix | C28=140 | D28=g | E28=2 days | F28=Per order | G28=HAW 2d/SY daily
+ROW 29: A29=7 | B29=Mayo | C29=20 | D29=g | E29=7 days | F29=10 kg | G29=1×/week
+ROW 30: A30=8 | B30=Dressing | C30=15 | D30=g | E30=7 days | F30=6 L | G30=1×/week
+ROW 31: A31=9 | B31=Roasted Peppers | C31=85 | D31=g | E31=7 days | F31=48 kg/wk | G31=1-2×/week
+ROW 33: A33=BATCH SIZES & RECIPE RATIOS
+ROW 34: A34=Used by Ordering Guide to calculate raw ingredient needs from prep demand.
+ROW 35: A35=Prep Item | B35=Batch Size | C35=Unit | D35=Yields | E35=Notes
+ROW 36: A36=Salsa Verde | B36=20 | C36=litres | D36=~20 kg | E36=2 batches/week typical
+ROW 37: A37=Pickled Onions | B37=20 | C37=kg onions | D37=~20 kg | E37=1-2 batches/week
+ROW 38: A38=Mayo | B38=4 | C38=kg base | D38=~10 kg finished | E38=1 batch/week
+ROW 39: A39=Crumb Mix | B39=100 | C39=cotoletta | D39=100 crumbed pcs | E39=Scale linearly
+ROW 40: A40=GC Marinade | B40=10 | C40=panini | D40=10 marinated pcs | E40=Scale linearly
+ROW 41: A41=Panzanella Salad | B41=10 | C41=panini | D41=10 serves | E41=Scale linearly
+ROW 42: A42=Salad Dressing | B42=10 | C42=panini | D42=10 portions | E42=Scale linearly
+ROW 43: A43=Roasted Peppers | B43=12 | C43=tins | D43=~48 kg | E43=1-2 batches/week
+ROW 45: A45=TRANSFER PRICES — STORES PAY PRODUCTION
+ROW 46: A46=Enter the price Piccolo Production charges stores per unit. Flows to Weekly Invoice.
+ROW 47: A47=Prep Item | B47=Unit | C47=Cost/Unit ($) | D47=Notes
+ROW 48: A48=Cotoletta (crumbed) | B48=per piece | C48=2.5 | D48=Includes chicken + crumb
+ROW 49: A49=Marinated Chicken | B49=per piece | C49=2 | D49=Includes chicken + marinade
+ROW 50: A50=Pickled Onions | B50=per kg | C50=5
+ROW 51: A51=Salsa Verde | B51=per kg | C51=8
+ROW 52: A52=Tomatoes (Cut) | B52=per kg | C52=6
+ROW 53: A53=Salad Mix | B53=per kg | C53=10 | D53=Includes all salad components
+ROW 54: A54=Mayo | B54=per kg | C54=8
+ROW 55: A55=Dressing | B55=per litre | C55=6
+ROW 56: A56=Roasted Peppers | B56=per kg | C56=7
+ROW 58: A58=ALL RAW INGREDIENT COSTS
+ROW 59: A59=Yellow = enter from invoices. Col G = auto cost per unit for panini costing.
+ROW 60: A60=Ingredient | B60=Supplier | C60=Pack Description | D60=Cost/Pack ($) | E60=Pack Qty | F60=Pack Unit | G60=Cost/Unit ($)
+ROW 61: A61=Chicken breast | B61=Oroso | C61=per kg | D61=12 | E61=1000 | F61=g | G61=[FORMULA =IF(D61="",0,D61/E61)][VAL 0.012]
+ROW 62: A62=Panko breadcrumbs | B62=ARZ | C62=10kg bag | D62=36.95 | E62=10000 | F62=g | G62=[FORMULA =IF(D62="",0,D62/E62)][VAL 0.0036950000000000004]
+ROW 63: A63=Plain flour | B63=ARZ | C63=12.5kg bag | D63=15.9 | E63=12500 | F63=g | G63=[FORMULA =IF(D63="",0,D63/E63)][VAL 0.0012720000000000001]
+ROW 64: A64=Parmesan | B64=ARZ | C64=per kg (est) | D64=12 | E64=1000 | F64=g | G64=[FORMULA =IF(D64="",0,D64/E64)][VAL 0.012]
+ROW 65: A65=Eggs | B65=ARZ | C65=15 dozen tray | D65=30.51 | E65=180 | F65=egg | G65=[FORMULA =IF(D65="",0,D65/E65)][VAL 0.1695]
+ROW 66: A66=Milk | B66=ARZ | C66=2L bottle (est) | D66=3.5 | E66=2000 | F66=ml | G66=[FORMULA =IF(D66="",0,D66/E66)][VAL 0.00175]
+ROW 67: A67=Dried thyme | B67=ARZ | C67=500g | D67=6.25 | E67=500 | F67=g | G67=[FORMULA =IF(D67="",0,D67/E67)][VAL 0.0125]
+ROW 68: A68=Dried oregano | B68=ARZ | C68=500g | D68=6.54 | E68=500 | F68=g | G68=[FORMULA =IF(D68="",0,D68/E68)][VAL 0.01308]
+ROW 69: A69=Garlic powder | B69=ARZ | C69=500g (est) | D69=8 | E69=500 | F69=g | G69=[FORMULA =IF(D69="",0,D69/E69)][VAL 0.016]
+ROW 70: A70=Fresh parsley | B70=Morabito | C70=bunch | D70=2.5 | E70=1 | F70=bunch | G70=[FORMULA =IF(D70="",0,D70/E70)][VAL 2.5]
+ROW 71: A71=Dill | B71=Morabito | C71=bunch | D71=3 | E71=1 | F71=bunch | G71=[FORMULA =IF(D71="",0,D71/E71)][VAL 3]
+ROW 72: A72=Fresh basil | B72=Morabito | C72=bunch | D72=3.35 | E72=1 | F72=bunch | G72=[FORMULA =IF(D72="",0,D72/E72)][VAL 3.35]
+ROW 73: A73=Onions red peeled | B73=Morabito | C73=10kg bag | D73=42 | E73=10000 | F73=g | G73=[FORMULA =IF(D73="",0,D73/E73)][VAL 0.0042]
+ROW 74: A74=Blend oil | B74=ARZ | C74=18L | D74=86.95 | E74=18000 | F74=ml | G74=[FORMULA =IF(D74="",0,D74/E74)][VAL 0.004830555555555556]
+ROW 75: A75=White vinegar | B75=ARZ | C75=20L | D75=20.75 | E75=20000 | F75=ml | G75=[FORMULA =IF(D75="",0,D75/E75)][VAL 0.0010375]
+ROW 76: A76=Red wine vinegar | B76=ARZ | C76=5L | D76=10.15 | E76=5000 | F76=ml | G76=[FORMULA =IF(D76="",0,D76/E76)][VAL 0.00203]
+ROW 77: A77=EVOO | B77=ARZ | C77=1L (est) | D77=14 | E77=1000 | F77=ml | G77=[FORMULA =IF(D77="",0,D77/E77)][VAL 0.014]
+ROW 78: A78=Sugar | B78=ARZ | C78=15kg (est) | D78=18 | E78=15000 | F78=g | G78=[FORMULA =IF(D78="",0,D78/E78)][VAL 0.0012]
+ROW 79: A79=Gourmet tomatoes | B79=Morabito | C79=10kg box | D79=43 | E79=10000 | F79=g | G79=[FORMULA =IF(D79="",0,D79/E79)][VAL 0.0043]
+ROW 80: A80=Cherry tomatoes | B80=Morabito | C80=per kg | D80=7.7 | E80=1000 | F80=g | G80=[FORMULA =IF(D80="",0,D80/E80)][VAL 0.0077]
+ROW 81: A81=Cucumber | B81=Morabito | C81=each ~300g | D81=2 | E81=300 | F81=g | G81=[FORMULA =IF(D81="",0,D81/E81)][VAL 0.006666666666666667]
+ROW 82: A82=Roasted peppers | B82=ARZ | C82=4.1kg tin | D82=20.4 | E82=4100 | F82=g | G82=[FORMULA =IF(D82="",0,D82/E82)][VAL 0.004975609756097561]
+ROW 83: A83=Mayo base | B83=ARZ | C83=20kg tub | D83=85.71 | E83=20000 | F83=g | G83=[FORMULA =IF(D83="",0,D83/E83)][VAL 0.004285499999999999]
+ROW 84: A84=Lemon juice | B84=ARZ | C84=2L | D84=8.2 | E84=2000 | F84=ml | G84=[FORMULA =IF(D84="",0,D84/E84)][VAL 0.0040999999999999995]
+ROW 85: A85=Honey | B85=ARZ | C85=3kg (est) | D85=18 | E85=3000 | F85=g | G85=[FORMULA =IF(D85="",0,D85/E85)][VAL 0.006]
+ROW 86: A86=Salt | B86=ARZ | C86=5kg (est) | D86=3 | E86=5000 | F86=g | G86=[FORMULA =IF(D86="",0,D86/E86)][VAL 0.0006]
+ROW 87: A87=Black pepper | B87=ARZ | C87=500g (est) | D87=10 | E87=500 | F87=g | G87=[FORMULA =IF(D87="",0,D87/E87)][VAL 0.02]
+ROW 88: A88=Fresh garlic | B88=Morabito | C88=per kg (est) | D88=15 | E88=1000 | F88=g | G88=[FORMULA =IF(D88="",0,D88/E88)][VAL 0.015]
+ROW 89: A89=Lemons fresh | B89=Morabito | C89=per kg (est) | D89=6 | E89=1000 | F89=g | G89=[FORMULA =IF(D89="",0,D89/E89)][VAL 0.006]
+ROW 90: A90=Pistachios | B90=ARZ | C90=per kg | D90=49.09 | E90=1000 | F90=g | G90=[FORMULA =IF(D90="",0,D90/E90)][VAL 0.04909]
+ROW 91: A91=Focaccia bread | B91=Rustica | C91=per roll | E91=1 | F91=roll | G91=[FORMULA =IF(D91="",0,D91/E91)][VAL 0]
+ROW 92: A92=Mozzarella | C92=per kg | E92=1000 | F92=g | G92=[FORMULA =IF(D92="",0,D92/E92)][VAL 0]
+ROW 93: A93=Stracciatella | C93=per kg | E93=1000 | F93=g | G93=[FORMULA =IF(D93="",0,D93/E93)][VAL 0]
+ROW 94: A94=Provolone | C94=per kg | E94=1000 | F94=g | G94=[FORMULA =IF(D94="",0,D94/E94)][VAL 0]
+ROW 95: A95=Prosciutto meat | C95=per kg | E95=1000 | F95=g | G95=[FORMULA =IF(D95="",0,D95/E95)][VAL 0]
+ROW 96: A96=Mortadella meat | C96=per kg | E96=1000 | F96=g | G96=[FORMULA =IF(D96="",0,D96/E96)][VAL 0]
+ROW 97: A97=Salami | C97=per kg | E97=1000 | F97=g | G97=[FORMULA =IF(D97="",0,D97/E97)][VAL 0]
+ROW 98: A98=Rocket | C98=per kg | E98=1000 | F98=g | G98=[FORMULA =IF(D98="",0,D98/E98)][VAL 0]
+ROW 99: A99=Basil pesto | C99=per kg | E99=1000 | F99=g | G99=[FORMULA =IF(D99="",0,D99/E99)][VAL 0]
+ROW 100: A100=Bruschetta spread | C100=per kg | E100=1000 | F100=g | G100=[FORMULA =IF(D100="",0,D100/E100)][VAL 0]
+ROW 101: A101=Salsa Verde | C101=20L batch | D101=[FORMULA =(D71*10+D72*10+D70*10+D74/18*14+D75/20*2.5+D84/2*0.15+D86/5*0.1)][VAL 159.3965277777778] | E101=20000 | F101=g | G101=[FORMULA =IF(D101="",0,D101/E101)][VAL 0.007969826388888891]
+ROW 102: A102=Pickled Onions | C102=20kg batch | D102=[FORMULA =(D73*2+D75/20*10+D78/15*4)][VAL 99.175] | E102=20000 | F102=g | G102=[FORMULA =IF(D102="",0,D102/E102)][VAL 0.00495875]
+ROW 103: A103=Mayo | C103=10kg batch | D103=[FORMULA =(D83/20*4+D72*1+D84/2*0.2)][VAL 21.312] | E103=10000 | F103=g | G103=[FORMULA =IF(D103="",0,D103/E103)][VAL 0.0021312]
+ROW 104: A104=Dressing | C104=~1L batch | D104=[FORMULA =(D77*0.6+D76/5*0.24+D88/1000*4)][VAL 8.9472] | E104=1000 | F104=ml | G104=[FORMULA =IF(D104="",0,D104/E104)][VAL 0.0089472]
+ROW 105: A105=Salad Mix | C105=1.4kg batch | D105=[FORMULA =(D80*0.8+D81/0.3*0.3+D82/4.1*0.2+D73/10*0.08+D72*0.2)][VAL 10.161121951219513] | E105=1400 | F105=g | G105=[FORMULA =IF(D105="",0,D105/E105)][VAL 0.007257944250871081]

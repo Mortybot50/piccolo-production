@@ -1,0 +1,80 @@
+# SHEET: Ingredient Builds
+dims=A1:D85 max_row=85 max_col=4
+
+ROW 1: A1=INGREDIENT BUILDS — RECIPES
+ROW 2: A2=Reference. TBC in yellow.
+ROW 4: A4=PANKO CRUMB MIX
+ROW 5: A5=Per 100 cotoletta
+ROW 6: A6=Component | B6=Ingredient | C6=Quantity | D6=Notes
+ROW 7: A7=Stn 1 | B7=Plain flour | C7=650 g
+ROW 8: A8=Stn 2 | B8=Eggs | C8=18
+ROW 9: A9=Stn 2 | B9=Milk | C9=2 L
+ROW 10: A10=Stn 3 | B10=Panko | C10=2.5 kg
+ROW 11: A11=Stn 3 | B11=Parmesan | C11=80 g | D11=Grated
+ROW 12: A12=Stn 3 | B12=Thyme | C12=60 g
+ROW 13: A13=Stn 3 | B13=Oregano | C13=60 g
+ROW 14: A14=Stn 3 | B14=Salt | C14=60 g
+ROW 15: A15=Stn 3 | B15=Garlic pwd | C15=30 g
+ROW 16: A16=Stn 3 | B16=Pepper | C16=4 g
+ROW 17: A17=Stn 3 | B17=Parsley | C17=2 bunch | D17=Chopped
+ROW 18: A18=Protein | B18=Chicken | C18=100 pcs | D18=~200g ea
+ROW 20: A20=SALSA VERDE
+ROW 21: A21=~20L per batch
+ROW 22: A22=Component | B22=Ingredient | C22=Quantity | D22=Notes
+ROW 23: A23=Herbs | B23=Dill | C23=10 bunch
+ROW 24: A24=Herbs | B24=Parsley | C24=10 bunch
+ROW 25: A25=Herbs | B25=Basil | C25=10 bunch
+ROW 26: A26=Liquid | B26=Oil blend | C26=14 L
+ROW 27: A27=Liquid | B27=Vinegar | C27=2-2.5 L
+ROW 28: A28=Season | B28=Salt | C28=~100 g
+ROW 29: A29=Season | B29=Lemon juice | C29=~150 ml
+ROW 30: A30=Season | B30=Garlic | C30=10 cloves | D30=Raw — 7d shelf
+ROW 32: A32=GRILLED CHICKEN MARINADE
+ROW 33: A33=Per 10 panini
+ROW 34: A34=Component | B34=Ingredient | C34=Quantity | D34=Notes
+ROW 35: A35=Protein | B35=Chicken | C35=1.5 kg | D35=10×150g
+ROW 36: A36=Mar | B36=EVOO | C36=60 g
+ROW 37: A37=Mar | B37=Lemon zest | C37=1 lemon
+ROW 38: A38=Mar | B38=Lemon juice | C38=40 g
+ROW 39: A39=Mar | B39=Garlic | C39=14 g
+ROW 40: A40=Mar | B40=Salt | C40=15 g
+ROW 41: A41=Mar | B41=Honey | C41=6 g
+ROW 42: A42=Mar | B42=Oregano | C42=4 g
+ROW 43: A43=Mar | B43=Parsley | C43=15 g
+ROW 45: A45=PANZANELLA SALAD
+ROW 46: A46=Per 10 panini
+ROW 47: A47=Component | B47=Ingredient | C47=Quantity | D47=Notes
+ROW 48: B48=Cherry toms | C48=800 g | D48=NOT Caprese toms
+ROW 49: B49=Cucumber | C49=300 g | D49=Small dice
+ROW 50: B50=Roast capsicum | C50=200 g | D50=From pepper prep
+ROW 51: B51=Red onion | C51=80 g | D51=Thin
+ROW 52: B52=Basil | C52=20 g | D52=Torn
+ROW 54: A54=SALAD DRESSING
+ROW 55: A55=Per 10 (sep bottle)
+ROW 56: A56=Component | B56=Ingredient | C56=Quantity | D56=Notes
+ROW 57: B57=EVOO | C57=90 g
+ROW 58: B58=RW vinegar | C58=36 g
+ROW 59: B59=Garlic | C59=6 g | D59=NOT garlic oil
+ROW 60: B60=Salt | C60=12 g
+ROW 61: B61=Pepper | C61=2 g
+ROW 63: A63=PICKLED ONIONS
+ROW 64: A64=Per 20kg batch
+ROW 65: A65=Component | B65=Ingredient | C65=Quantity | D65=Notes
+ROW 66: B66=Onions | C66=20 kg
+ROW 67: B67=RW vinegar | C67=10 L
+ROW 68: B68=Sugar | C68=4 kg
+ROW 70: A70=MAYO
+ROW 71: A71=Per 4kg base
+ROW 72: A72=Component | B72=Ingredient | C72=Quantity | D72=Notes
+ROW 73: B73=Mayo base | C73=4 kg | D73=From ARZ
+ROW 74: B74=Basil | C74=100 g
+ROW 75: B75=Lemon juice | C75=200g
+ROW 76: B76=Lemon zest | C76=5 lemons
+ROW 78: A78=ROASTED PEPPERS
+ROW 79: A79=Per batch
+ROW 80: A80=Component | B80=Ingredient | C80=Quantity | D80=Notes
+ROW 81: B81=Pepper tins | C81=12 × 4kg | D81=ARZ
+ROW 82: B82=Garlic | C82=8 cloves per tin | D82=Raw — 7d shelf
+ROW 83: B83=Basil | C83=30g per tin
+ROW 84: B84=Olive oil | C84=250ml per tin
+ROW 85: B85=Salt | C85=Few pinches per tin
