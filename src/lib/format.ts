@@ -28,18 +28,27 @@ export function isoToDate(s: string): Date {
 }
 
 export function addDaysISO(s: string, days: number): string {
+  // Use local components so we don't shift across the UTC boundary
+  // (toISOString() converts back to UTC, which subtracts 10h in AEST and
+  // returns the previous calendar day — see Codex review 18/05/2026).
   const d = isoToDate(s);
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
 }
 
 export function weekStartISO(d: Date = new Date()): string {
-  // Monday-anchored week start.
+  // Monday-anchored week start. Uses local components (see addDaysISO note).
   const day = d.getDay(); // 0=Sun..6=Sat
   const diff = day === 0 ? -6 : 1 - day;
   const r = new Date(d);
   r.setDate(d.getDate() + diff);
-  return r.toISOString().slice(0, 10);
+  const y = r.getFullYear();
+  const m = String(r.getMonth() + 1).padStart(2, "0");
+  const dd = String(r.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
 }
 
 export const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"] as const;
