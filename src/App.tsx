@@ -12,6 +12,8 @@ const Placeholder = lazy(() => import("@/pages/Placeholder"));
 const SettingsPage = lazy(() => import("@/pages/Settings"));
 const SalesInputPage = lazy(() => import("@/pages/SalesInput"));
 const TodayPage = lazy(() => import("@/pages/Today"));
+const StoreOrderPage = lazy(() => import("@/pages/StoreOrder"));
+const CateringPage = lazy(() => import("@/pages/Catering"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -46,7 +48,7 @@ export default function App() {
                 path="/store-order/:store"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Store order" phase="Phase F" />
+                    <StoreOrderPage />
                   </RouteGuard>
                 }
               />
@@ -54,7 +56,7 @@ export default function App() {
                 path="/catering"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Catering" phase="Phase F" />
+                    <CateringPage />
                   </RouteGuard>
                 }
               />

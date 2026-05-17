@@ -11,6 +11,8 @@ import {
   ClipboardList,
   History,
   LogOut,
+  CalendarPlus,
+  Store,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -25,6 +27,8 @@ import {
 
 const MORE_LINKS = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { to: "/store-order/SY", label: "SY order", icon: Store },
+  { to: "/catering", label: "Catering", icon: CalendarPlus },
   { to: "/sales-input", label: "Sales input", icon: ClipboardList },
   { to: "/invoice-history", label: "Invoice history", icon: History },
   { to: "/recipes", label: "Recipes", icon: BookOpen },
