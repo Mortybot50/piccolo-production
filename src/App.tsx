@@ -14,6 +14,7 @@ const SalesInputPage = lazy(() => import("@/pages/SalesInput"));
 const TodayPage = lazy(() => import("@/pages/Today"));
 const StoreOrderPage = lazy(() => import("@/pages/StoreOrder"));
 const CateringPage = lazy(() => import("@/pages/Catering"));
+const SupplierOrdersPage = lazy(() => import("@/pages/SupplierOrders"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -64,7 +65,7 @@ export default function App() {
                 path="/supplier-orders"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Supplier orders" phase="Phase G" />
+                    <SupplierOrdersPage />
                   </RouteGuard>
                 }
               />
