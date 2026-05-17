@@ -63,6 +63,17 @@ export default function CateringPage() {
   const create = useMutation({
     mutationFn: async () => {
       if (!customer.trim() || !delivery) throw new Error("Customer + delivery date required");
+      // Validate lines BEFORE inserting the parent row (Supabase has no
+      // client transaction so a parent-insert + failed-line scenario
+      // would leak an empty catering order).
+      const parsedLines = Object.entries(lines)
+        .map(([menu_item_id, q]) => ({
+          menu_item_id,
+          qty: parseInt(q, 10),
+        }))
+        .filter((l) => Number.isInteger(l.qty) && l.qty > 0);
+      if (parsedLines.length === 0) throw new Error("Add at least one line");
+
       const { data: orderRow, error: orderErr } = await supabase
         .from("catering_orders")
         .insert({
@@ -76,16 +87,17 @@ export default function CateringPage() {
         .select("id")
         .single();
       if (orderErr) throw orderErr;
-      const lineRows = Object.entries(lines)
-        .map(([menu_item_id, q]) => ({
-          catering_order_id: orderRow.id,
-          menu_item_id,
-          qty: parseInt(q, 10),
-        }))
-        .filter((l) => Number.isInteger(l.qty) && l.qty > 0);
-      if (lineRows.length === 0) throw new Error("Add at least one line");
+      const lineRows = parsedLines.map((l) => ({
+        catering_order_id: orderRow.id,
+        menu_item_id: l.menu_item_id,
+        qty: l.qty,
+      }));
       const { error: linesErr } = await supabase.from("catering_order_lines").insert(lineRows);
-      if (linesErr) throw linesErr;
+      if (linesErr) {
+        // Best-effort rollback: delete the orphan order row.
+        await supabase.from("catering_orders").delete().eq("id", orderRow.id);
+        throw linesErr;
+      }
     },
     onSuccess: () => {
       toast.success(`Catering order saved for ${customer}`);

@@ -1,7 +1,7 @@
 // Today / Prep / Tracker — F1 morning flow.
 // Daily plan -> stock count -> prep gap -> log production (with HAW/SY split).
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import {
   Card,
@@ -215,6 +215,11 @@ function WasteCard({ date, prepItems }: { date: string; prepItems: PrepItemLite[
   const [qty, setQty] = useState("");
   const [reason, setReason] = useState<(typeof WASTE_REASONS)[number]["value"]>("expired");
   const [note, setNote] = useState("");
+
+  // prepItems loads async — seed itemId once the first item is available.
+  useEffect(() => {
+    if (!itemId && prepItems.length > 0) setItemId(prepItems[0].id);
+  }, [itemId, prepItems]);
 
   const save = useMutation({
     mutationFn: async () => {
