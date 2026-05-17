@@ -69,7 +69,13 @@ export default function LoginPage() {
     setBusy(false);
     if (r.ok) {
       toast.success("Welcome");
-      navigate("/today", { replace: true });
+      // If the selected user was flagged must_change_pin, send them there first.
+      const u = users.find((x) => x.id === selectedUserId);
+      if (u?.must_change_pin) {
+        navigate("/change-pin", { replace: true });
+      } else {
+        navigate("/today", { replace: true });
+      }
       return;
     }
     setPin("");
