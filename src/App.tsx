@@ -11,6 +11,7 @@ const PrimitivesPage = lazy(() => import("@/pages/Primitives"));
 const Placeholder = lazy(() => import("@/pages/Placeholder"));
 const SettingsPage = lazy(() => import("@/pages/Settings"));
 const SalesInputPage = lazy(() => import("@/pages/SalesInput"));
+const TodayPage = lazy(() => import("@/pages/Today"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -37,7 +38,7 @@ export default function App() {
                 path="/today"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Today" phase="Phase E" />
+                    <TodayPage />
                   </RouteGuard>
                 }
               />
