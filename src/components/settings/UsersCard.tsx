@@ -50,6 +50,13 @@ export function UsersCard() {
         p_pin: pin,
       });
       if (pinErr) throw pinErr;
+      // set_pin clears must_change_pin — re-flag so the new user is forced
+      // through /change-pin on first login (matches form copy).
+      const { error: flagErr } = await supabase
+        .from("users")
+        .update({ must_change_pin: true })
+        .eq("id", data.id);
+      if (flagErr) throw flagErr;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: qk.users }),
   });

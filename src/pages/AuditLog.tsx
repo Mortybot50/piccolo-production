@@ -16,13 +16,14 @@ import { qk } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 
 interface AuditRow {
-  id: number;
-  acted_at: string;
-  acted_by_user_id: string | null;
-  table_name: string;
+  id: string;
+  ts: string;
+  user_id: string | null;
   action: string;
-  row_pk: string | null;
-  diff: unknown;
+  entity_type: string;
+  entity_id: string | null;
+  before_jsonb: unknown;
+  after_jsonb: unknown;
   users: { display_name: string } | null;
 }
 
@@ -32,8 +33,8 @@ function useAuditLog() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("audit_log")
-        .select("id, acted_at, acted_by_user_id, table_name, action, row_pk, diff, users(display_name)")
-        .order("acted_at", { ascending: false })
+        .select("id, ts, user_id, action, entity_type, entity_id, before_jsonb, after_jsonb, users(display_name)")
+        .order("ts", { ascending: false })
         .limit(500);
       if (error) throw error;
       return (data ?? []) as unknown as AuditRow[];
@@ -49,10 +50,10 @@ export default function AuditLogPage() {
     const q = filter.toLowerCase();
     return rows.filter(
       (r) =>
-        r.table_name.includes(q) ||
+        r.entity_type.toLowerCase().includes(q) ||
         r.action.toLowerCase().includes(q) ||
         (r.users?.display_name ?? "").toLowerCase().includes(q) ||
-        (r.row_pk ?? "").includes(q)
+        (r.entity_id ?? "").toLowerCase().includes(q)
     );
   }, [rows, filter]);
 
@@ -87,15 +88,18 @@ export default function AuditLogPage() {
                   <Badge variant="outline" className="mr-1">
                     {r.action}
                   </Badge>
-                  <span className="font-mono text-xs">{r.table_name}</span>
+                  <span className="font-mono text-xs">
+                    {r.entity_type}
+                    {r.entity_id ? `:${r.entity_id.slice(0, 8)}` : ""}
+                  </span>
                 </span>
                 <span className="text-xs text-stone-500">
-                  {new Date(r.acted_at).toLocaleString("en-AU")} ·{" "}
+                  {new Date(r.ts).toLocaleString("en-AU")} ·{" "}
                   {r.users?.display_name ?? "system"}
                 </span>
               </div>
               <pre className="overflow-x-auto rounded bg-stone-50 p-2 text-[10px] text-stone-600">
-                {JSON.stringify(r.diff, null, 2)}
+                {JSON.stringify({ before: r.before_jsonb, after: r.after_jsonb }, null, 2)}
               </pre>
             </div>
           ))}
