@@ -19,6 +19,7 @@ const InvoiceHistoryPage = lazy(() => import("@/pages/InvoiceHistory"));
 const DashboardPage = lazy(() => import("@/pages/Dashboard"));
 const AuditLogPage = lazy(() => import("@/pages/AuditLog"));
 const RecipesPage = lazy(() => import("@/pages/Recipes"));
+const CostingPage = lazy(() => import("@/pages/Costing"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -134,6 +135,14 @@ export default function App() {
                 element={
                   <RouteGuard>
                     <RecipesPage />
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/costing"
+                element={
+                  <RouteGuard>
+                    <CostingPage />
                   </RouteGuard>
                 }
               />

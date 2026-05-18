@@ -13,6 +13,7 @@ import {
   LogOut,
   CalendarPlus,
   Store,
+  Calculator,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -32,6 +33,7 @@ const MORE_LINKS = [
   { to: "/sales-input", label: "Sales input", icon: ClipboardList },
   { to: "/invoice-history", label: "Invoice history", icon: History },
   { to: "/recipes", label: "Recipes", icon: BookOpen },
+  { to: "/costing", label: "Costing", icon: Calculator },
   { to: "/audit-log", label: "Audit log", icon: ScrollText },
 ];
 

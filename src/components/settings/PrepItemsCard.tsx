@@ -5,22 +5,14 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/sonner";
 import {
   usePrepItems,
-  useProductionPnl,
+  useTransferPriceHistory,
+  useCloseAndInsertHistory,
   qk,
 } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { centsToDollars, fmtQty, fmtPct } from "@/lib/format";
-
-function thirtyDaysAgoISO() {
-  const d = new Date();
-  d.setDate(d.getDate() - 30);
-  return d.toISOString().slice(0, 10);
-}
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
+import { centsToDollars } from "@/lib/format";
 
 interface PrepItemRow {
   id: string;
@@ -39,17 +31,6 @@ interface PrepItemRow {
 export function PrepItemsCard() {
   const qc = useQueryClient();
   const { data = [], isLoading } = usePrepItems();
-  const { data: pnl = [] } = useProductionPnl(thirtyDaysAgoISO(), todayISO());
-
-  // Map prep_item_id → margin metrics for the loss-alert chip.
-  const pnlByItem = new Map<string, { cogs: number; margin: number; pct: number | null }>();
-  for (const row of pnl) {
-    pnlByItem.set(row.prep_item_id, {
-      cogs: Number(row.computed_cogs_per_unit_cents ?? 0),
-      margin: Number(row.margin_per_unit_cents ?? 0),
-      pct: row.margin_pct == null ? null : Number(row.margin_pct),
-    });
-  }
 
   const update = useMutation({
     mutationFn: async (patch: Partial<PrepItemRow> & { id: string }) => {
@@ -71,7 +52,6 @@ export function PrepItemsCard() {
           <PrepItemRowEdit
             key={row.id}
             row={row}
-            margin={pnlByItem.get(row.id)}
             onSave={(patch) => {
               update
                 .mutateAsync({ id: row.id, ...patch })
@@ -87,11 +67,9 @@ export function PrepItemsCard() {
 
 function PrepItemRowEdit({
   row,
-  margin,
   onSave,
 }: {
   row: PrepItemRow;
-  margin?: { cogs: number; margin: number; pct: number | null };
   onSave: (p: Partial<PrepItemRow>) => void;
 }) {
   const [portion, setPortion] = useState(String(row.portion_g));
@@ -100,9 +78,41 @@ function PrepItemRowEdit({
   const [price, setPrice] = useState(
     row.transfer_price_cents == null ? "" : (row.transfer_price_cents / 100).toFixed(2)
   );
+  const [showHistory, setShowHistory] = useState(false);
+  const closeAndInsert = useCloseAndInsertHistory();
 
-  const isLoss = (margin?.margin ?? 1) < 0 && row.transfer_price_cents != null;
-  const isLowMargin = !isLoss && margin?.pct != null && margin.pct < 0.05;
+  const onSavePrice = async () => {
+    const cents = price ? Math.round(parseFloat(price) * 100) : null;
+    if (cents == null) {
+      // No history change — just patch the prep_items row.
+      onSave({ transfer_price_cents: null });
+      return;
+    }
+    if (cents === row.transfer_price_cents) {
+      // No effective change — save the other fields only.
+      onSave({
+        portion_g: parseFloat(portion),
+        shelf_life_days: parseInt(shelf, 10),
+        batch_size: batch ? parseFloat(batch) : null,
+      });
+      return;
+    }
+    try {
+      await closeAndInsert.mutateAsync({
+        kind: "transfer",
+        prepItemId: row.id,
+        newPriceCents: cents,
+      });
+      onSave({
+        portion_g: parseFloat(portion),
+        shelf_life_days: parseInt(shelf, 10),
+        batch_size: batch ? parseFloat(batch) : null,
+        transfer_price_cents: cents,
+      });
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
 
   return (
     <div className="space-y-2 border-b border-[var(--color-border)] pb-3 last:border-b-0">
@@ -111,13 +121,9 @@ function PrepItemRowEdit({
           <span className="font-medium">{row.name}</span>
           <span className="font-mono text-xs text-stone-500">({row.unit})</span>
         </div>
-        {isLoss ? (
-          <Badge variant="bad">LOSS — {centsToDollars(margin?.margin ?? 0)}/u</Badge>
-        ) : isLowMargin ? (
-          <Badge variant="warn">Low margin {fmtPct(margin?.pct)}</Badge>
-        ) : margin?.pct != null ? (
-          <Badge variant="ok">Margin {fmtPct(margin?.pct)}</Badge>
-        ) : null}
+        <Badge variant="outline" className="font-mono text-xs">
+          Transfer {row.transfer_price_cents == null ? "—" : centsToDollars(row.transfer_price_cents)} / {row.unit}
+        </Badge>
       </div>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div>
@@ -160,25 +166,44 @@ function PrepItemRowEdit({
           />
         </div>
       </div>
-      {margin?.cogs ? (
-        <p className="text-xs text-stone-500">
-          Computed COGS: {centsToDollars(margin.cogs)} per unit · qty produced last 30d:{" "}
-          {fmtQty(margin?.cogs)}…
-        </p>
-      ) : null}
-      <Button
-        size="sm"
-        onClick={() =>
-          onSave({
-            portion_g: parseFloat(portion),
-            shelf_life_days: parseInt(shelf, 10),
-            batch_size: batch ? parseFloat(batch) : null,
-            transfer_price_cents: price ? Math.round(parseFloat(price) * 100) : null,
-          })
-        }
-      >
-        Save
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        <Button size="sm" disabled={closeAndInsert.isPending} onClick={() => void onSavePrice()}>
+          {closeAndInsert.isPending ? "Saving…" : "Save"}
+        </Button>
+        <Button variant="outline" size="sm" onClick={() => setShowHistory((v) => !v)}>
+          {showHistory ? "Hide history" : "View history"}
+        </Button>
+      </div>
+      {showHistory ? <TransferPriceHistoryList prepItemId={row.id} /> : null}
+    </div>
+  );
+}
+
+function TransferPriceHistoryList({ prepItemId }: { prepItemId: string }) {
+  const { data: rows = [], isLoading } = useTransferPriceHistory(prepItemId);
+  const list = rows as Array<{
+    id: string;
+    price_cents: number;
+    effective_from: string;
+    effective_to: string | null;
+  }>;
+  if (isLoading) return <p className="text-xs text-stone-500">Loading history…</p>;
+  if (list.length === 0) {
+    return <p className="text-xs text-stone-500">No history rows yet.</p>;
+  }
+  return (
+    <div className="rounded border border-stone-200 bg-stone-50 p-2 text-xs">
+      <div className="mb-1 font-medium text-stone-700">Transfer price history</div>
+      <ul className="space-y-0.5">
+        {list.map((h) => (
+          <li key={h.id} className="flex justify-between font-mono">
+            <span>
+              {h.effective_from} → {h.effective_to ?? "open"}
+            </span>
+            <span>{centsToDollars(h.price_cents)}</span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

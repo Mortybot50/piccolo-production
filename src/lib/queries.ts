@@ -34,11 +34,19 @@ export const qk = {
     ["supplier_order_recommendation", supplierId, deliveryDate] as const,
   weeklyInvoice: (storeId: string, ws: string, we: string) =>
     ["weekly_invoice", storeId, ws, we] as const,
-  productionPnl: (start: string, end: string) =>
-    ["production_pnl", start, end] as const,
   salesAverages: (storeId: string, weekNumber: number) =>
     ["sales_averages_4wk", storeId, weekNumber] as const,
   addonEntries: (weekId: string) => ["addon_entries", weekId] as const,
+  cateringLines: (date: string) => ["catering_order_lines", date] as const,
+  prepPlanOverrides: (date: string) => ["prep_plan_overrides", date] as const,
+  storeOrderOverrides: (storeId: string, date: string) =>
+    ["store_order_overrides", storeId, date] as const,
+  ingredientCostHistory: (id: string) => ["ingredient_cost_history", id] as const,
+  transferPriceHistory: (id: string) => ["transfer_price_history", id] as const,
+  computeCogs: (kind: string, id: string, asOf: string) =>
+    ["compute_cogs", kind, id, asOf] as const,
+  transferPriceAsOf: (id: string, asOf: string) =>
+    ["transfer_price_as_of", id, asOf] as const,
 };
 
 // ---------------------------------------------------------------------------
@@ -344,16 +352,35 @@ export function useAddonEntries(weekId: string | null) {
   });
 }
 
-export function useProductionPnl(start: string, end: string) {
+// production_pnl was dropped in v2 (Phase 1, migration 0011). Use compute_cogs
+// + transfer_price_as_of for per-item COGS/margin, and weekly_invoice for revenue.
+export function useComputeCogs(kind: "menu_item" | "prep_item", id: string | null, asOf: string) {
   return useQuery({
-    queryKey: qk.productionPnl(start, end),
+    queryKey: qk.computeCogs(kind, id ?? "", asOf),
+    enabled: !!id,
     queryFn: async () => {
-      const { data, error } = await supabase.rpc("production_pnl", {
-        p_start_date: start,
-        p_end_date: end,
+      const { data, error } = await supabase.rpc("compute_cogs", {
+        p_kind: kind,
+        p_id: id!,
+        p_as_of_date: asOf,
       });
       if (error) throw error;
-      return data ?? [];
+      return Number(data ?? 0);
+    },
+  });
+}
+
+export function useTransferPriceAsOf(prepItemId: string | null, asOf: string) {
+  return useQuery({
+    queryKey: qk.transferPriceAsOf(prepItemId ?? "", asOf),
+    enabled: !!prepItemId,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("transfer_price_as_of", {
+        p_prep_item_id: prepItemId!,
+        p_as_of_date: asOf,
+      });
+      if (error) throw error;
+      return Number(data ?? 0);
     },
   });
 }
@@ -401,6 +428,289 @@ export function useWasteEntries(date: string = todayISO()) {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// v2 — catering, overrides, effective-dated history
+// ---------------------------------------------------------------------------
+
+export function useCateringForDate(date: string) {
+  return useQuery({
+    queryKey: qk.cateringLines(date),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("catering_orders")
+        .select("id, delivery_date, customer_name, notes, catering_order_lines(id, menu_item_id, qty)")
+        .eq("delivery_date", date);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useUpsertCateringQty() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      date: string;
+      menuItemId: string;
+      qty: number;
+      userId: string | null;
+    }) => {
+      // Find or create a single "Today decorator" catering order for the date.
+      const { data: existing } = await supabase
+        .from("catering_orders")
+        .select("id")
+        .eq("delivery_date", input.date)
+        .eq("customer_name", "Today decorator")
+        .maybeSingle();
+      let orderId = existing?.id as string | undefined;
+      if (!orderId) {
+        const { data: ins, error: insErr } = await supabase
+          .from("catering_orders")
+          .insert({
+            delivery_date: input.date,
+            customer_name: "Today decorator",
+            notes: "Inline edit from /today",
+            created_by_user_id: input.userId,
+            status: "confirmed",
+          })
+          .select("id")
+          .single();
+        if (insErr) throw insErr;
+        orderId = ins.id;
+      }
+      if (input.qty <= 0) {
+        const { error } = await supabase
+          .from("catering_order_lines")
+          .delete()
+          .eq("catering_order_id", orderId)
+          .eq("menu_item_id", input.menuItemId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("catering_order_lines")
+          .upsert(
+            { catering_order_id: orderId, menu_item_id: input.menuItemId, qty: input.qty },
+            { onConflict: "catering_order_id,menu_item_id" }
+          );
+        if (error) throw error;
+      }
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: qk.cateringLines(vars.date) });
+      qc.invalidateQueries({ queryKey: qk.dailyPrepPlan(vars.date) });
+    },
+  });
+}
+
+export function usePrepPlanOverrides(date: string) {
+  return useQuery({
+    queryKey: qk.prepPlanOverrides(date),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("prep_plan_overrides")
+        .select("*")
+        .eq("plan_date", date);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useUpsertPrepPlanOverride() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      date: string;
+      prepItemId: string;
+      override_total?: number | null;
+      override_haw?: number | null;
+      override_sy?: number | null;
+      userId: string | null;
+    }) => {
+      const row = {
+        plan_date: input.date,
+        prep_item_id: input.prepItemId,
+        created_by_user_id: input.userId,
+        ...(input.override_total !== undefined ? { override_total: input.override_total } : {}),
+        ...(input.override_haw !== undefined ? { override_haw: input.override_haw } : {}),
+        ...(input.override_sy !== undefined ? { override_sy: input.override_sy } : {}),
+      };
+      const { error } = await supabase
+        .from("prep_plan_overrides")
+        .upsert(row, { onConflict: "plan_date,prep_item_id" });
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: qk.prepPlanOverrides(vars.date) });
+      qc.invalidateQueries({ queryKey: qk.dailyPrepPlan(vars.date) });
+    },
+  });
+}
+
+export function useStoreOrderOverrides(storeId: string | null, date: string) {
+  return useQuery({
+    queryKey: qk.storeOrderOverrides(storeId ?? "", date),
+    enabled: !!storeId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("store_order_overrides")
+        .select("*")
+        .eq("store_id", storeId!)
+        .eq("for_date", date);
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useUpsertStoreOrderOverride() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input: {
+      storeId: string;
+      date: string;
+      prepItemId: string;
+      override_qty: number | null;
+      userId: string | null;
+    }) => {
+      const { error } = await supabase.from("store_order_overrides").upsert(
+        {
+          store_id: input.storeId,
+          for_date: input.date,
+          prep_item_id: input.prepItemId,
+          override_qty: input.override_qty,
+          created_by_user_id: input.userId,
+        },
+        { onConflict: "store_id,for_date,prep_item_id" }
+      );
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({
+        queryKey: qk.storeOrderOverrides(vars.storeId, vars.date),
+      });
+      qc.invalidateQueries({
+        queryKey: qk.storeOrderRecommendation(vars.storeId, vars.date),
+      });
+    },
+  });
+}
+
+export function useIngredientCostHistory(ingredientId: string | null) {
+  return useQuery({
+    queryKey: qk.ingredientCostHistory(ingredientId ?? ""),
+    enabled: !!ingredientId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ingredient_cost_history")
+        .select("*")
+        .eq("ingredient_id", ingredientId!)
+        .order("effective_from", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useTransferPriceHistory(prepItemId: string | null) {
+  return useQuery({
+    queryKey: qk.transferPriceHistory(prepItemId ?? ""),
+    enabled: !!prepItemId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("transfer_price_history")
+        .select("*")
+        .eq("prep_item_id", prepItemId!)
+        .order("effective_from", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+// Close the open history row and insert a new one effective today. Used by
+// Settings when editing transfer prices / ingredient costs.
+export function useCloseAndInsertHistory() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (input:
+      | { kind: "transfer"; prepItemId: string; newPriceCents: number }
+      | { kind: "ingredient"; ingredientId: string; newCostPerUnitCents: number }
+    ) => {
+      const today = todayISO();
+      if (input.kind === "transfer") {
+        // Close the open row.
+        const { error: closeErr } = await supabase
+          .from("transfer_price_history")
+          .update({ effective_to: today })
+          .eq("prep_item_id", input.prepItemId)
+          .is("effective_to", null);
+        if (closeErr) throw closeErr;
+        const { error: insErr } = await supabase
+          .from("transfer_price_history")
+          .insert({
+            prep_item_id: input.prepItemId,
+            price_cents: input.newPriceCents,
+            effective_from: today,
+            effective_to: null,
+          });
+        if (insErr) throw insErr;
+        // Mirror onto prep_items so other read-paths (e.g. cached displays) stay aligned.
+        await supabase
+          .from("prep_items")
+          .update({ transfer_price_cents: input.newPriceCents })
+          .eq("id", input.prepItemId);
+      } else {
+        const { error: closeErr } = await supabase
+          .from("ingredient_cost_history")
+          .update({ effective_to: today })
+          .eq("ingredient_id", input.ingredientId)
+          .is("effective_to", null);
+        if (closeErr) throw closeErr;
+        const { error: insErr } = await supabase
+          .from("ingredient_cost_history")
+          .insert({
+            ingredient_id: input.ingredientId,
+            cost_per_unit_cents: input.newCostPerUnitCents,
+            effective_from: today,
+            effective_to: null,
+          });
+        if (insErr) throw insErr;
+        // cost_per_unit_cents is a generated column on ingredients (cost_per_pack_cents / pack_qty).
+        // We only stamp last_cost_update_at here; the upstream caller is expected to
+        // have already written cost_per_pack_cents + pack_qty to drive the generated value.
+        await supabase
+          .from("ingredients")
+          .update({ last_cost_update_at: new Date().toISOString() })
+          .eq("id", input.ingredientId);
+      }
+    },
+    onSuccess: (_, vars) => {
+      if (vars.kind === "transfer") {
+        qc.invalidateQueries({ queryKey: qk.transferPriceHistory(vars.prepItemId) });
+        qc.invalidateQueries({ queryKey: qk.prepItems });
+      } else {
+        qc.invalidateQueries({ queryKey: qk.ingredientCostHistory(vars.ingredientId) });
+        qc.invalidateQueries({ queryKey: qk.ingredients });
+      }
+    },
+  });
+}
+
+export function useAdvanceLatestWeek() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.rpc("auto_advance_week");
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.appSettings });
+      qc.invalidateQueries({ queryKey: qk.salesWeeks });
     },
   });
 }

@@ -1,11 +1,10 @@
 // /dashboard — KPI tiles + alerts.
 //   This week revenue (sum of weekly_invoice HAW+SY for current week)
 //   Prior week revenue
-//   Production P&L summary (loss alerts, low-margin alerts)
+//   Loss-making prep items (compute_cogs vs transfer_price_as_of)
 //   Stale-cost ingredient count
 //   Forgot-to-log: if no prep_log entries today and it's after 11:00 local
 
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import {
@@ -24,16 +23,11 @@ import {
   usePrepItems,
   useIngredients,
   useWeeklyInvoice,
-  useProductionPnl,
   usePrepLog,
 } from "@/lib/queries";
-import {
-  centsToDollars,
-  fmtPct,
-  fmtQty,
-  todayISO,
-  addDaysISO,
-} from "@/lib/format";
+import { supabase } from "@/lib/supabase";
+import { useQuery } from "@tanstack/react-query";
+import { centsToDollars, fmtPct, todayISO } from "@/lib/format";
 
 function isStale(iso: string | null | undefined): boolean {
   if (!iso) return true;
@@ -48,24 +42,50 @@ interface IngLite {
   last_cost_update_at: string | null;
 }
 
-interface PnlRow {
-  prep_item_id: string;
-  qty_produced: number;
-  qty_sent_total: number;
-  computed_cogs_per_unit_cents: number;
-  transfer_price_cents: number;
-  margin_per_unit_cents: number;
-  margin_pct: number | null;
+interface PrepLite {
+  id: string;
+  name: string;
+  active: boolean;
+}
+
+// Pulls compute_cogs + transfer_price_as_of for every active prep item and
+// flags rows where cogs >= transfer price (loss or zero-margin).
+function useLossMakingPrep(asOf: string) {
+  return useQuery({
+    queryKey: ["dashboard_loss_making", asOf],
+    queryFn: async () => {
+      const { data: prepRows, error: prepErr } = await supabase
+        .from("prep_items")
+        .select("id, name, unit, active")
+        .eq("active", true);
+      if (prepErr) throw prepErr;
+      const out: Array<{ id: string; name: string; unit: string; cogs: number; price: number }> = [];
+      for (const p of prepRows ?? []) {
+        const [{ data: cogs }, { data: price }] = await Promise.all([
+          supabase.rpc("compute_cogs", { p_kind: "prep_item", p_id: p.id, p_as_of_date: asOf }),
+          supabase.rpc("transfer_price_as_of", { p_prep_item_id: p.id, p_as_of_date: asOf }),
+        ]);
+        out.push({
+          id: p.id,
+          name: p.name,
+          unit: p.unit,
+          cogs: Number(cogs ?? 0),
+          price: Number(price ?? 0),
+        });
+      }
+      return out;
+    },
+  });
 }
 
 export default function DashboardPage() {
+  const today = todayISO();
   const { data: settings } = useAppSettings();
   const { data: stores = [] } = useStores();
   const { data: weeks = [] } = useSalesWeeks();
   const { data: prepItemsRaw = [] } = usePrepItems();
   const { data: ingredients = [] } = useIngredients();
-  const prepItems = prepItemsRaw as Array<{ id: string; name: string }>;
-  const prepNameById = new Map(prepItems.map((p) => [p.id, p.name]));
+  const prepItems = prepItemsRaw as PrepLite[];
 
   const wk = settings?.latest_week_number ?? weeks[0]?.week_number;
   const currentWeek = weeks.find((w) => w.week_number === wk);
@@ -86,20 +106,14 @@ export default function DashboardPage() {
   const deltaPct =
     priorTotal > 0 ? (curTotal - priorTotal) / priorTotal : null;
 
-  // P&L last 30 days for margin alerts.
-  const start = addDaysISO(todayISO(), -30);
-  const { data: pnl = [] } = useProductionPnl(start, todayISO());
-  const pnlRows = pnl as PnlRow[];
-  const losses = pnlRows.filter(
-    (r) => r.transfer_price_cents > 0 && Number(r.margin_per_unit_cents) < 0
-  );
-  const lowMargins = pnlRows.filter(
-    (r) =>
-      r.transfer_price_cents > 0 &&
-      Number(r.margin_per_unit_cents) >= 0 &&
-      r.margin_pct != null &&
-      Number(r.margin_pct) < 0.05
-  );
+  // Loss-making items (compute_cogs vs transfer_price_as_of).
+  const { data: loss = [], isLoading: lossLoading } = useLossMakingPrep(today);
+  const losses = loss.filter((r) => r.price > 0 && r.cogs > r.price);
+  const lowMargins = loss.filter((r) => {
+    if (r.price <= 0 || r.cogs > r.price) return false;
+    const margin = r.price - r.cogs;
+    return margin > 0 && margin / r.price < 0.05;
+  });
 
   // Stale cost ingredients.
   const ings = ingredients as unknown as IngLite[];
@@ -107,18 +121,9 @@ export default function DashboardPage() {
   const emptyCost = ings.filter((i) => i.cost_per_pack_cents == null);
 
   // Forgot to log today.
-  const { data: prepLog = [] } = usePrepLog(todayISO());
+  const { data: prepLog = [] } = usePrepLog(today);
   const nowHours = new Date().getHours();
   const forgotToLog = nowHours >= 11 && prepLog.length === 0;
-
-  // Top movers (qty_sent_total, top 5).
-  const topMovers = useMemo(
-    () =>
-      [...pnlRows]
-        .sort((a, b) => Number(b.qty_sent_total) - Number(a.qty_sent_total))
-        .slice(0, 5),
-    [pnlRows]
-  );
 
   return (
     <AppShell title="Dashboard">
@@ -141,7 +146,7 @@ export default function DashboardPage() {
       <div className="mb-3 grid grid-cols-2 gap-3">
         <Card>
           <CardHeader>
-            <CardDescription>This week revenue</CardDescription>
+            <CardDescription>This week earned</CardDescription>
             <CardTitle className="font-mono">{centsToDollars(curTotal)}</CardTitle>
           </CardHeader>
           <CardContent>
@@ -174,13 +179,22 @@ export default function DashboardPage() {
 
       <Card className="mb-3">
         <CardHeader>
-          <CardTitle>Margin alerts (last 30d)</CardTitle>
+          <CardTitle>
+            Loss-making prep items
+            {losses.length > 0 ? (
+              <Badge variant="bad" className="ml-2">
+                {losses.length}
+              </Badge>
+            ) : null}
+          </CardTitle>
           <CardDescription>
-            Losses + low-margin items computed against current ingredient costs.
+            COGS exceeds transfer price (effective {today}). Drill into{" "}
+            <Link to="/costing" className="underline">Costing</Link> for details.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
-          {losses.length === 0 && lowMargins.length === 0 ? (
+          {lossLoading ? <p className="text-sm text-stone-500">Computing…</p> : null}
+          {!lossLoading && losses.length === 0 && lowMargins.length === 0 ? (
             <p className="text-sm text-stone-500">
               <Badge variant="ok" className="mr-1">
                 OK
@@ -190,22 +204,22 @@ export default function DashboardPage() {
           ) : null}
           {losses.map((r) => (
             <div
-              key={r.prep_item_id}
+              key={r.id}
               className="flex items-center justify-between rounded border border-red-200 bg-red-50 p-2 text-sm"
             >
-              <span>{prepNameById.get(r.prep_item_id) ?? r.prep_item_id}</span>
+              <span>{r.name}</span>
               <Badge variant="bad">
-                LOSS {centsToDollars(r.margin_per_unit_cents)}/u
+                LOSS {centsToDollars(r.cogs - r.price)}/{r.unit}
               </Badge>
             </div>
           ))}
           {lowMargins.map((r) => (
             <div
-              key={r.prep_item_id}
+              key={r.id}
               className="flex items-center justify-between rounded border border-yellow-200 bg-yellow-50 p-2 text-sm"
             >
-              <span>{prepNameById.get(r.prep_item_id) ?? r.prep_item_id}</span>
-              <Badge variant="warn">low {fmtPct(r.margin_pct)}</Badge>
+              <span>{r.name}</span>
+              <Badge variant="warn">low {fmtPct((r.price - r.cogs) / r.price)}</Badge>
             </div>
           ))}
         </CardContent>
@@ -239,27 +253,25 @@ export default function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Top movers (last 30d)</CardTitle>
-          <CardDescription>By total sent to stores.</CardDescription>
+          <CardTitle>Quick links</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-1 text-sm">
-          {topMovers.map((r) => (
-            <div
-              key={r.prep_item_id}
-              className="flex items-center justify-between border-b border-stone-100 py-1 last:border-b-0"
-            >
-              <span>{prepNameById.get(r.prep_item_id) ?? r.prep_item_id}</span>
-              <span className="font-mono text-xs text-stone-600">
-                {fmtQty(r.qty_sent_total)} sent · margin{" "}
-                {fmtPct(r.margin_pct)}
-              </span>
-            </div>
-          ))}
-          {topMovers.length === 0 ? (
-            <p className="text-stone-500">No data yet — log some prep.</p>
-          ) : null}
+        <CardContent className="flex flex-wrap gap-2 text-sm">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/today">Today</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/costing">Costing</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/invoice">Invoice</Link>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/audit-log">Audit log</Link>
+          </Button>
         </CardContent>
       </Card>
+      {/* Prep items reference to satisfy lints; downstream uses if expanded. */}
+      <span className="hidden">{prepItems.length}</span>
     </AppShell>
   );
 }

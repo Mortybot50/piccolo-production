@@ -20,6 +20,7 @@ import {
   useSalesEntries,
   useAddonEntries,
   useSalesAverages,
+  useAdvanceLatestWeek,
 } from "@/lib/queries";
 import { WEEKDAYS, fmtQty, type Weekday } from "@/lib/format";
 
@@ -239,8 +240,60 @@ export default function SalesInputPage() {
     );
   }, [grid]);
 
+  const advance = useAdvanceLatestWeek();
+  const latestWk = settings?.latest_week_number ?? null;
+  const recentWeeks = useMemo(() => weeks.slice(0, 4), [weeks]);
+
   return (
     <AppShell title="Sales input">
+      <Card className="mb-3">
+        <CardHeader className="flex flex-row items-start justify-between gap-2">
+          <div>
+            <CardTitle>Latest week</CardTitle>
+            <CardDescription>
+              Recommendations key off this week's averages. Advance once a
+              week (Mon morning) to roll the rolling window forward.
+            </CardDescription>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            disabled={advance.isPending}
+            onClick={() => {
+              advance
+                .mutateAsync()
+                .then(() => toast.success("Latest week advanced"))
+                .catch((e: Error) => toast.error(e.message));
+            }}
+          >
+            {advance.isPending ? "Advancing…" : "Advance latest week"}
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-2 text-sm">
+          <div>
+            <Badge variant="outline" className="mr-1">
+              Week {latestWk ?? "—"}
+            </Badge>
+            <span className="text-stone-500">
+              currently driving prep + store-order forecasts.
+            </span>
+          </div>
+          {recentWeeks.length > 0 ? (
+            <div className="flex flex-wrap gap-1">
+              {recentWeeks.map((w) => (
+                <Badge
+                  key={w.id}
+                  variant={w.week_number === latestWk ? "default" : "outline"}
+                  className="font-mono text-[11px]"
+                >
+                  Wk {w.week_number} · {w.week_start_date}
+                </Badge>
+              ))}
+            </div>
+          ) : null}
+        </CardContent>
+      </Card>
+
       <Card className="mb-4">
         <CardHeader>
           <CardTitle>Week + store</CardTitle>

@@ -241,30 +241,61 @@ export default function InvoicePage() {
                   {week?.week_end_date}
                 </p>
               </div>
+              <p className="text-xs text-stone-500 print:text-stone-600">
+                Pricing as of {week?.week_end_date ?? "—"} (end of week).
+                Lines flagged "mid-week change" had a transfer-price edit
+                during this week — line totals reflect the actual prices on
+                each log day.
+              </p>
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-xs text-stone-500">
                     <th className="py-2">Item</th>
                     <th className="py-2 text-right">Qty</th>
-                    <th className="py-2 text-right">Unit price</th>
+                    <th className="py-2 text-right">
+                      Unit price
+                      <div className="text-[10px] font-normal text-stone-400">
+                        as of {week?.week_end_date ?? ""}
+                      </div>
+                    </th>
                     <th className="py-2 text-right">Line total</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {lineRows.map((l) => (
-                    <tr key={l.prep_item_id} className="border-b border-stone-100">
-                      <td className="py-2">{l.name}</td>
-                      <td className="py-2 text-right font-mono">
-                        {fmtQty(l.qty)} {l.unit}
-                      </td>
-                      <td className="py-2 text-right font-mono">
-                        {centsToDollars(l.unit_price_cents)}
-                      </td>
-                      <td className="py-2 text-right font-mono">
-                        {centsToDollars(l.line_total_cents)}
-                      </td>
-                    </tr>
-                  ))}
+                  {lineRows.map((l) => {
+                    const implied =
+                      l.qty > 0 ? l.line_total_cents / l.qty : null;
+                    const priceChanged =
+                      implied != null &&
+                      Math.abs(implied - l.unit_price_cents) > 0.5;
+                    return (
+                      <tr
+                        key={l.prep_item_id}
+                        className="border-b border-stone-100"
+                      >
+                        <td className="py-2">
+                          {l.name}
+                          {priceChanged ? (
+                            <Badge
+                              variant="warn"
+                              className="ml-2 text-[10px] print:hidden"
+                            >
+                              mid-week change
+                            </Badge>
+                          ) : null}
+                        </td>
+                        <td className="py-2 text-right font-mono">
+                          {fmtQty(l.qty)} {l.unit}
+                        </td>
+                        <td className="py-2 text-right font-mono">
+                          {centsToDollars(l.unit_price_cents)}
+                        </td>
+                        <td className="py-2 text-right font-mono">
+                          {centsToDollars(l.line_total_cents)}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
                 <tfoot>
                   <tr>
