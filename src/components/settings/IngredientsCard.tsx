@@ -116,6 +116,7 @@ function IngredientRowEdit({
   const [packQty, setPackQty] = useState(row.pack_qty == null ? "" : String(row.pack_qty));
   const [packUnit, setPackUnit] = useState(row.pack_unit ?? "");
   const [showHistory, setShowHistory] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const closeAndInsert = useCloseAndInsertHistory();
 
@@ -123,38 +124,44 @@ function IngredientRowEdit({
   const stale = !empty && isStale(row.last_cost_update_at);
 
   const onSave = async () => {
-    const newPackCents = costStr ? Math.round(parseFloat(costStr) * 100) : null;
-    const newPackQty = packQty ? parseFloat(packQty) : null;
-
-    // Persist the meta fields FIRST and await — the generated cost_per_unit_cents
-    // column has to recompute before we write a history row, otherwise history
-    // can drift ahead of the ingredient row if the meta update fails or is slow.
+    if (saving) return; // guard against double-tap re-entry
+    setSaving(true);
     try {
-      await onSaveMeta({
-        supplier_id: supplier || null,
-        pack_desc: packDesc || null,
-        cost_per_pack_cents: newPackCents,
-        pack_qty: newPackQty,
-        pack_unit: packUnit || null,
-      });
-    } catch (e) {
-      toast.error((e as Error).message);
-      return;
-    }
+      const newPackCents = costStr ? Math.round(parseFloat(costStr) * 100) : null;
+      const newPackQty = packQty ? parseFloat(packQty) : null;
 
-    // Cost-history side-effect: only if we have a complete cost-per-unit signal.
-    const newUnitCents = deriveUnitCostCents(newPackCents, newPackQty);
-    const oldUnitCents = row.cost_per_unit_cents == null ? null : Math.round(row.cost_per_unit_cents);
-    if (newUnitCents != null && newUnitCents !== oldUnitCents) {
+      // Persist the meta fields FIRST and await — the generated cost_per_unit_cents
+      // column has to recompute before we write a history row, otherwise history
+      // can drift ahead of the ingredient row if the meta update fails or is slow.
       try {
-        await closeAndInsert.mutateAsync({
-          kind: "ingredient",
-          ingredientId: row.id,
-          newCostPerUnitCents: newUnitCents,
+        await onSaveMeta({
+          supplier_id: supplier || null,
+          pack_desc: packDesc || null,
+          cost_per_pack_cents: newPackCents,
+          pack_qty: newPackQty,
+          pack_unit: packUnit || null,
         });
       } catch (e) {
         toast.error((e as Error).message);
+        return;
       }
+
+      // Cost-history side-effect: only if we have a complete cost-per-unit signal.
+      const newUnitCents = deriveUnitCostCents(newPackCents, newPackQty);
+      const oldUnitCents = row.cost_per_unit_cents == null ? null : Math.round(row.cost_per_unit_cents);
+      if (newUnitCents != null && newUnitCents !== oldUnitCents) {
+        try {
+          await closeAndInsert.mutateAsync({
+            kind: "ingredient",
+            ingredientId: row.id,
+            newCostPerUnitCents: newUnitCents,
+          });
+        } catch (e) {
+          toast.error((e as Error).message);
+        }
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -241,10 +248,10 @@ function IngredientRowEdit({
           </Button>
           <Button
             size="sm"
-            disabled={closeAndInsert.isPending}
+            disabled={saving || closeAndInsert.isPending}
             onClick={() => void onSave()}
           >
-            {closeAndInsert.isPending ? "Saving…" : "Save"}
+            {saving || closeAndInsert.isPending ? "Saving…" : "Save"}
           </Button>
         </div>
       </div>
