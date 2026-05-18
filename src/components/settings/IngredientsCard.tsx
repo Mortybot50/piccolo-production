@@ -88,11 +88,9 @@ export function IngredientsCard() {
             key={row.id}
             row={row}
             suppliers={suppliers as { id: string; code: string }[]}
-            onSaveMeta={(patch) => {
-              updateMeta
-                .mutateAsync({ id: row.id, ...patch })
-                .then(() => toast.success(`${row.name} saved`))
-                .catch((e: Error) => toast.error(e.message));
+            onSaveMeta={async (patch) => {
+              await updateMeta.mutateAsync({ id: row.id, ...patch });
+              toast.success(`${row.name} saved`);
             }}
           />
         ))}
@@ -108,7 +106,7 @@ function IngredientRowEdit({
 }: {
   row: IngredientRow;
   suppliers: { id: string; code: string }[];
-  onSaveMeta: (p: Partial<IngredientRow>) => void;
+  onSaveMeta: (p: Partial<IngredientRow>) => Promise<void>;
 }) {
   const [supplier, setSupplier] = useState(row.supplier_id ?? "");
   const [packDesc, setPackDesc] = useState(row.pack_desc ?? "");
@@ -128,15 +126,21 @@ function IngredientRowEdit({
     const newPackCents = costStr ? Math.round(parseFloat(costStr) * 100) : null;
     const newPackQty = packQty ? parseFloat(packQty) : null;
 
-    // Always persist the meta fields first so the generated cost_per_unit_cents
-    // recomputes to the right value.
-    onSaveMeta({
-      supplier_id: supplier || null,
-      pack_desc: packDesc || null,
-      cost_per_pack_cents: newPackCents,
-      pack_qty: newPackQty,
-      pack_unit: packUnit || null,
-    });
+    // Persist the meta fields FIRST and await — the generated cost_per_unit_cents
+    // column has to recompute before we write a history row, otherwise history
+    // can drift ahead of the ingredient row if the meta update fails or is slow.
+    try {
+      await onSaveMeta({
+        supplier_id: supplier || null,
+        pack_desc: packDesc || null,
+        cost_per_pack_cents: newPackCents,
+        pack_qty: newPackQty,
+        pack_unit: packUnit || null,
+      });
+    } catch (e) {
+      toast.error((e as Error).message);
+      return;
+    }
 
     // Cost-history side-effect: only if we have a complete cost-per-unit signal.
     const newUnitCents = deriveUnitCostCents(newPackCents, newPackQty);

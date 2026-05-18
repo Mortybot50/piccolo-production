@@ -72,7 +72,7 @@ function usePaniniCosting(items: MenuItemLite[], asOf: string) {
           id: m.id,
           code: m.code,
           name: m.name,
-          cogs_cents: Math.round(Number(data ?? 0) * 100),
+          cogs_cents: Math.round(Number(data ?? 0)),
           sell_cents: m.sell_price_cents,
         });
       }
@@ -107,8 +107,8 @@ function usePrepCosting(items: PrepItemLite[], asOf: string) {
           code: p.code,
           name: p.name,
           unit: p.unit,
-          cogs_cents: Math.round(Number(cogs ?? 0) * 100),
-          transfer_cents: Math.round(Number(tp ?? 0) * 100),
+          cogs_cents: Math.round(Number(cogs ?? 0)),
+          transfer_cents: Math.round(Number(tp ?? 0)),
         });
       }
       return out;

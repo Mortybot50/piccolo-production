@@ -6,7 +6,7 @@
 // add/edit/delete + a "Print cook card" button that opens a print-friendly
 // view in a new tab.
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import {
   Card,
@@ -391,6 +391,15 @@ function YieldEditor({
 }) {
   const [q, setQ] = useState(qty == null ? "" : String(qty));
   const [u, setU] = useState(unit);
+  // Re-seed local state when the loaded yield arrives or changes — prevents
+  // the editor from showing blank/stale values for recipes whose lines load
+  // asynchronously after mount.
+  useEffect(() => {
+    setQ(qty == null ? "" : String(qty));
+  }, [qty]);
+  useEffect(() => {
+    setU(unit);
+  }, [unit]);
   return (
     <div className="flex items-end gap-2 rounded border border-stone-200 bg-stone-50 p-2">
       <div className="flex-1">
