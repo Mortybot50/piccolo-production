@@ -6,8 +6,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { supabase, PIN_LOGIN_URL, PIN_CHANGE_URL } from "@/lib/supabase";
-import type { PublicUser } from "@/types/database";
+import { supabase, PinAuth, PIN_LOGIN_URL, PIN_CHANGE_URL } from "@/lib/supabase";
+import type { PublicUser } from "@/types/app";
 
 interface LoginOk {
   ok: true;
@@ -30,25 +30,20 @@ interface AuthCtx {
 
 const Ctx = createContext<AuthCtx | null>(null);
 
-const AUTH_STORAGE_KEY = "sb-piccolo-prod-auth-token";
-
-function clearAuthStorage() {
-  try {
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    // Defensive: also clear any sb-* keys that might be left over.
-    Object.keys(localStorage)
-      .filter((k) => k.startsWith("sb-"))
-      .forEach((k) => localStorage.removeItem(k));
-  } catch {
-    // ignore
-  }
-}
-
 async function fetchSelf(): Promise<PublicUser | null> {
+  const jwt = PinAuth.getJwt();
+  if (!jwt) return null;
+  const payload = PinAuth.parsePayload(jwt);
+  const appUserId = payload?.user_metadata?.app_user_id;
+  if (!appUserId) {
+    // eslint-disable-next-line no-console
+    console.warn("[auth] fetchSelf: jwt missing app_user_id claim");
+    return null;
+  }
   const { data, error } = await supabase
     .from("users")
     .select("id, display_name, must_change_pin")
-    .limit(1)
+    .eq("id", appUserId)
     .maybeSingle();
   if (error) {
     // eslint-disable-next-line no-console
@@ -64,50 +59,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
-    const bootTimeout = setTimeout(() => {
-      if (cancelled) return;
-      // eslint-disable-next-line no-console
-      console.warn("[auth] getSession timed out after 5s. Clearing local auth.");
-      clearAuthStorage();
-      setUser(null);
-      setIsLoading(false);
-    }, 5000);
-
     (async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        const jwt = PinAuth.getJwt();
+        if (!jwt || PinAuth.isExpired(jwt)) {
+          if (jwt) PinAuth.clear();
+          if (!cancelled) {
+            setUser(null);
+            setIsLoading(false);
+          }
+          return;
+        }
+        const me = await fetchSelf();
         if (cancelled) return;
-        clearTimeout(bootTimeout);
-        if (error || !data.session) {
-          setUser(null);
-        } else {
-          // We have a session; check who we are.
-          const me = await fetchSelf();
-          setUser(me);
+        setUser(me);
+        if (!me) {
+          // JWT present but DB says no such user — clear and bail.
+          PinAuth.clear();
         }
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("[auth] boot error", err);
-        clearAuthStorage();
-        setUser(null);
+        if (!cancelled) setUser(null);
       } finally {
         if (!cancelled) setIsLoading(false);
       }
     })();
-
-    const { data: sub } = supabase.auth.onAuthStateChange(async (_evt, session) => {
-      if (!session) {
-        setUser(null);
-      } else {
-        const me = await fetchSelf();
-        setUser(me);
-      }
-    });
-
     return () => {
       cancelled = true;
-      clearTimeout(bootTimeout);
-      sub.subscription.unsubscribe();
     };
   }, []);
 
@@ -129,34 +108,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         retry_after_seconds: body.retry_after_seconds,
       };
     }
-    const body = (await res.json()) as { access_token: string; refresh_token: string };
-    const { error } = await supabase.auth.setSession({
-      access_token: body.access_token,
-      refresh_token: body.refresh_token,
-    });
-    if (error) {
-      return { ok: false, reason: `Session error: ${error.message}` };
+    const body = (await res.json()) as {
+      access_token: string;
+      refresh_token: string;
+      must_change_pin?: boolean;
+      user?: { id: string; display_name: string };
+    };
+    if (!body.access_token) {
+      return { ok: false, reason: "Server returned no access token" };
     }
-    const me = await fetchSelf();
-    setUser(me);
+    PinAuth.setJwt(body.access_token, body.refresh_token);
+    if (body.user) {
+      setUser({
+        id: body.user.id,
+        display_name: body.user.display_name,
+        must_change_pin: body.must_change_pin ?? false,
+      });
+    } else {
+      const me = await fetchSelf();
+      setUser(me);
+    }
     return { ok: true };
   };
 
   const logout = async () => {
-    await supabase.auth.signOut();
-    clearAuthStorage();
+    PinAuth.clear();
     setUser(null);
   };
 
   const changePin = async (oldPin: string, newPin: string): Promise<LoginResult> => {
-    const { data: sess } = await supabase.auth.getSession();
-    const token = sess.session?.access_token;
-    if (!token) return { ok: false, reason: "Not authenticated" };
+    const jwt = PinAuth.getJwt();
+    if (!jwt) return { ok: false, reason: "Not authenticated" };
     const res = await fetch(PIN_CHANGE_URL, {
       method: "POST",
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${token}`,
+        authorization: `Bearer ${jwt}`,
         apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
       },
       body: JSON.stringify({ old_pin: oldPin, new_pin: newPin }),

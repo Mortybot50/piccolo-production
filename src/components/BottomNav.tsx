@@ -4,7 +4,7 @@ import {
   Store,
   Truck,
   Receipt,
-  LayoutDashboard,
+  Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,7 +13,7 @@ const items = [
   { to: "/store-order/HAW", label: "Store", icon: Store },
   { to: "/supplier-orders", label: "Suppliers", icon: Truck },
   { to: "/invoice", label: "Invoice", icon: Receipt },
-  { to: "/dashboard", label: "Dash", icon: LayoutDashboard },
+  { to: "/settings", label: "More", icon: Settings },
 ];
 
 export function BottomNav() {

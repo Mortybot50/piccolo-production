@@ -8,7 +8,18 @@ import { Toaster } from "@/components/ui/sonner";
 const LoginPage = lazy(() => import("@/pages/Login"));
 const ChangePinPage = lazy(() => import("@/pages/ChangePin"));
 const PrimitivesPage = lazy(() => import("@/pages/Primitives"));
-const Placeholder = lazy(() => import("@/pages/Placeholder"));
+const SettingsPage = lazy(() => import("@/pages/Settings"));
+const SalesInputPage = lazy(() => import("@/pages/SalesInput"));
+const TodayPage = lazy(() => import("@/pages/Today"));
+const StoreOrderPage = lazy(() => import("@/pages/StoreOrder"));
+const CateringPage = lazy(() => import("@/pages/Catering"));
+const SupplierOrdersPage = lazy(() => import("@/pages/SupplierOrders"));
+const InvoicePage = lazy(() => import("@/pages/Invoice"));
+const InvoiceHistoryPage = lazy(() => import("@/pages/InvoiceHistory"));
+const DashboardPage = lazy(() => import("@/pages/Dashboard"));
+const AuditLogPage = lazy(() => import("@/pages/AuditLog"));
+const RecipesPage = lazy(() => import("@/pages/Recipes"));
+const CostingPage = lazy(() => import("@/pages/Costing"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -35,7 +46,7 @@ export default function App() {
                 path="/today"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Today" phase="Phase E" />
+                    <TodayPage />
                   </RouteGuard>
                 }
               />
@@ -43,7 +54,7 @@ export default function App() {
                 path="/store-order/:store"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Store order" phase="Phase F" />
+                    <StoreOrderPage />
                   </RouteGuard>
                 }
               />
@@ -51,7 +62,7 @@ export default function App() {
                 path="/catering"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Catering" phase="Phase F" />
+                    <CateringPage />
                   </RouteGuard>
                 }
               />
@@ -59,7 +70,7 @@ export default function App() {
                 path="/supplier-orders"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Supplier orders" phase="Phase G" />
+                    <SupplierOrdersPage />
                   </RouteGuard>
                 }
               />
@@ -67,7 +78,7 @@ export default function App() {
                 path="/dashboard"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Dashboard" phase="Phase I" />
+                    <DashboardPage />
                   </RouteGuard>
                 }
               />
@@ -75,7 +86,7 @@ export default function App() {
                 path="/invoice"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Invoice" phase="Phase H" />
+                    <InvoicePage />
                   </RouteGuard>
                 }
               />
@@ -83,7 +94,7 @@ export default function App() {
                 path="/invoice/:weekNum"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Invoice (week)" phase="Phase H" />
+                    <InvoicePage />
                   </RouteGuard>
                 }
               />
@@ -91,7 +102,7 @@ export default function App() {
                 path="/invoice-history"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Invoice history" phase="Phase H" />
+                    <InvoiceHistoryPage />
                   </RouteGuard>
                 }
               />
@@ -99,7 +110,7 @@ export default function App() {
                 path="/sales-input"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Sales input" phase="Phase D" />
+                    <SalesInputPage />
                   </RouteGuard>
                 }
               />
@@ -107,7 +118,7 @@ export default function App() {
                 path="/settings"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Settings" phase="Phase C" />
+                    <SettingsPage />
                   </RouteGuard>
                 }
               />
@@ -115,7 +126,7 @@ export default function App() {
                 path="/audit-log"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Audit log" phase="Phase B" />
+                    <AuditLogPage />
                   </RouteGuard>
                 }
               />
@@ -123,7 +134,15 @@ export default function App() {
                 path="/recipes"
                 element={
                   <RouteGuard>
-                    <Placeholder title="Recipes" phase="Phase B" />
+                    <RecipesPage />
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/costing"
+                element={
+                  <RouteGuard>
+                    <CostingPage />
                   </RouteGuard>
                 }
               />
