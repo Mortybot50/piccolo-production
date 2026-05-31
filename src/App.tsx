@@ -20,6 +20,7 @@ const DashboardPage = lazy(() => import("@/pages/Dashboard"));
 const AuditLogPage = lazy(() => import("@/pages/AuditLog"));
 const RecipesPage = lazy(() => import("@/pages/Recipes"));
 const CostingPage = lazy(() => import("@/pages/Costing"));
+const SentryTestPage = lazy(() => import("@/pages/SentryTest"));
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 30_000, refetchOnWindowFocus: false } },
@@ -151,6 +152,14 @@ export default function App() {
                 element={
                   <RouteGuard>
                     <PrimitivesPage />
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/__sentry-test"
+                element={
+                  <RouteGuard>
+                    <SentryTestPage />
                   </RouteGuard>
                 }
               />
