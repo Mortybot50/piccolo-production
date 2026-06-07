@@ -29,7 +29,28 @@ interface SupplierRow {
   id: string;
   code: string;
   name: string;
-  schedule_jsonb: unknown;
+  schedule_jsonb: { kind?: string } | null;
+}
+
+const WEEKDAY_TO_DOW: Record<string, number> = {
+  Sun: 0,
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+};
+
+// Given a target weekday, find the next ISO date (>= today) that lands on it.
+function nextDateForWeekday(target: string): string {
+  const now = new Date();
+  const today = now.getDay();
+  const want = WEEKDAY_TO_DOW[target];
+  if (want == null) return todayISO();
+  let diff = want - today;
+  if (diff < 0) diff += 7;
+  return addDaysISO(todayISO(), diff);
 }
 interface IngredientRow {
   id: string;
@@ -223,6 +244,40 @@ export default function SupplierOrdersPage() {
               <Badge variant="outline">{note || "—"}</Badge>
             </div>
           </div>
+          {supplier?.schedule_jsonb?.kind === "thrice_weekly" ? (
+            <div className="mt-3">
+              <p className="mb-1 text-xs text-stone-500">
+                Jump to a delivery day
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {(["Mon", "Wed", "Fri"] as const).map((d) => {
+                  const next = nextDateForWeekday(d);
+                  const active = deliveryDate === next;
+                  return (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setDeliveryDate(next)}
+                      className={
+                        active
+                          ? "rounded bg-[var(--color-brand-600)] px-3 py-1.5 text-xs font-medium text-white"
+                          : "rounded border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-medium text-stone-700 hover:bg-stone-50"
+                      }
+                    >
+                      {d} delivery
+                      <span className="ml-1 text-[10px] opacity-70">
+                        ({next.slice(5)})
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="mt-1 text-[11px] text-stone-500">
+                Each day applies the per-ingredient split rule (Settings → Supplier
+                schedule).
+              </p>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 

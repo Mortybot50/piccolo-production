@@ -20,6 +20,8 @@ const DashboardPage = lazy(() => import("@/pages/Dashboard"));
 const AuditLogPage = lazy(() => import("@/pages/AuditLog"));
 const RecipesPage = lazy(() => import("@/pages/Recipes"));
 const CostingPage = lazy(() => import("@/pages/Costing"));
+const SalesAveragesPage = lazy(() => import("@/pages/SalesAverages"));
+const PrepLogPage = lazy(() => import("@/pages/PrepLog"));
 const SentryTestPage = lazy(() => import("@/pages/SentryTest"));
 
 const queryClient = new QueryClient({
@@ -144,6 +146,22 @@ export default function App() {
                 element={
                   <RouteGuard>
                     <CostingPage />
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/sales-averages"
+                element={
+                  <RouteGuard>
+                    <SalesAveragesPage />
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/prep-log"
+                element={
+                  <RouteGuard>
+                    <PrepLogPage />
                   </RouteGuard>
                 }
               />

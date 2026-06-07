@@ -486,6 +486,37 @@ export function usePrepLog(date: string = todayISO()) {
   });
 }
 
+export function usePrepLogRange(startDate: string, endDate: string) {
+  return useQuery({
+    queryKey: ["prep_log_range", startDate, endDate] as const,
+    enabled: !!startDate && !!endDate,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("prep_log")
+        .select("*")
+        .gte("log_date", startDate)
+        .lte("log_date", endDate)
+        .order("log_date", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
+export function useCombinedDemandByWeekday(weekNumber: number | null) {
+  return useQuery({
+    queryKey: ["combined_demand_by_weekday", weekNumber ?? 0] as const,
+    enabled: weekNumber != null,
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc("combined_demand_by_weekday", {
+        p_week_number: weekNumber!,
+      });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+}
+
 export function useWasteEntries(date: string = todayISO()) {
   return useQuery({
     queryKey: qk.wasteEntries(date),
