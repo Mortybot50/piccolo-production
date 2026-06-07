@@ -3,7 +3,7 @@ import {
   Calendar,
   Store,
   Truck,
-  Receipt,
+  BookOpen,
   Settings,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,7 @@ const items = [
   { to: "/today", label: "Today", icon: Calendar },
   { to: "/store-order/HAW", label: "Store", icon: Store },
   { to: "/supplier-orders", label: "Suppliers", icon: Truck },
-  { to: "/invoice", label: "Invoice", icon: Receipt },
+  { to: "/recipes", label: "Recipes", icon: BookOpen },
   { to: "/settings", label: "More", icon: Settings },
 ];
 

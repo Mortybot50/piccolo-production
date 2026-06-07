@@ -6,18 +6,24 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/sonner";
 import { useAppSettings, useUpdateAppSettings } from "@/lib/queries";
 
+const WINDOW_OPTIONS = [2, 4, 6, 8];
+
 export function GlobalSettingsCard() {
   const { data, isLoading } = useAppSettings();
   const update = useUpdateAppSettings();
   const [week, setWeek] = useState("");
   const [buffer, setBuffer] = useState("");
   const [waste, setWaste] = useState("");
+  const [windowWeeks, setWindowWeeks] = useState<number>(4);
+  const [useMedian, setUseMedian] = useState<boolean>(false);
 
   useEffect(() => {
     if (!data) return;
     setWeek(String(data.latest_week_number));
     setBuffer(String(data.buffer_pct));
     setWaste(String(data.waste_threshold_pct));
+    setWindowWeeks((data.window_weeks as number | undefined) ?? 4);
+    setUseMedian((data.use_median as boolean | undefined) ?? false);
   }, [data]);
 
   if (isLoading || !data) {
@@ -30,6 +36,8 @@ export function GlobalSettingsCard() {
         latest_week_number: parseInt(week, 10),
         buffer_pct: parseFloat(buffer),
         waste_threshold_pct: parseFloat(waste),
+        window_weeks: windowWeeks,
+        use_median: useMedian,
       });
       toast.success("Global settings saved");
     } catch (e) {
@@ -82,6 +90,39 @@ export function GlobalSettingsCard() {
             value={waste}
             onChange={(e) => setWaste(e.target.value)}
           />
+        </div>
+        <div className="border-t border-[var(--color-border)] pt-4">
+          <Label>Forecast window</Label>
+          <div className="mt-1 flex flex-wrap gap-2">
+            {WINDOW_OPTIONS.map((w) => (
+              <Button
+                key={w}
+                type="button"
+                size="sm"
+                variant={windowWeeks === w ? "default" : "outline"}
+                onClick={() => setWindowWeeks(w)}
+              >
+                {w} weeks
+              </Button>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-stone-500">
+            Rolling window for sales averages. Default 4.
+          </p>
+        </div>
+        <div>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={useMedian}
+              onChange={(e) => setUseMedian(e.target.checked)}
+              className="h-4 w-4"
+            />
+            Use median instead of mean
+          </label>
+          <p className="mt-1 text-xs text-stone-500">
+            Better when a catering spike skews one week.
+          </p>
         </div>
         <Button onClick={() => void onSave()} disabled={update.isPending}>
           {update.isPending ? "Saving…" : "Save"}

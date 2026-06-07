@@ -42,7 +42,7 @@ async function fetchSelf(): Promise<PublicUser | null> {
   }
   const { data, error } = await supabase
     .from("users")
-    .select("id, display_name, must_change_pin")
+    .select("id, display_name, must_change_pin, is_admin")
     .eq("id", appUserId)
     .maybeSingle();
   if (error) {
@@ -119,10 +119,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     PinAuth.setJwt(body.access_token, body.refresh_token);
     if (body.user) {
+      // Fast-path: edge function returns id/display_name only. Default is_admin
+      // to false so non-admin UI doesn't flash, then hydrate from DB below.
       setUser({
         id: body.user.id,
         display_name: body.user.display_name,
         must_change_pin: body.must_change_pin ?? false,
+        is_admin: false,
+      });
+      // Hydrate is_admin in background — UI updates when the query resolves.
+      void fetchSelf().then((me) => {
+        if (me) setUser(me);
       });
     } else {
       const me = await fetchSelf();

@@ -27,6 +27,7 @@ import {
 } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { centsToDollars, fmtPct, todayISO } from "@/lib/format";
 
 function isStale(iso: string | null | undefined): boolean {
@@ -80,6 +81,8 @@ function useLossMakingPrep(asOf: string) {
 
 export default function DashboardPage() {
   const today = todayISO();
+  const { user } = useAuth();
+  const isAdmin = user?.is_admin === true;
   const { data: settings } = useAppSettings();
   const { data: stores = [] } = useStores();
   const { data: weeks = [] } = useSalesWeeks();
@@ -94,6 +97,9 @@ export default function DashboardPage() {
   const hawId = stores.find((s) => s.code === "HAW")?.id ?? null;
   const syId = stores.find((s) => s.code === "SY")?.id ?? null;
 
+  // Commercial-tile queries are only consumed when isAdmin — but the hooks
+  // must run unconditionally to satisfy the rules of hooks. They short-circuit
+  // when storeId/dates are empty (react-query enabled-gate inside).
   const curHaw = useWeeklyInvoice(hawId, currentWeek?.week_start_date ?? "", currentWeek?.week_end_date ?? "");
   const curSy = useWeeklyInvoice(syId, currentWeek?.week_start_date ?? "", currentWeek?.week_end_date ?? "");
   const priorHaw = useWeeklyInvoice(hawId, priorWeek?.week_start_date ?? "", priorWeek?.week_end_date ?? "");
@@ -143,6 +149,34 @@ export default function DashboardPage() {
         </Card>
       ) : null}
 
+      {!isAdmin ? (
+        <Card className="mb-3">
+          <CardHeader>
+            <CardTitle>Where to next</CardTitle>
+            <CardDescription>Your most-used screens.</CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-wrap gap-2 text-sm">
+            <Button asChild size="sm">
+              <Link to="/today">Today's prep</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/store-order/HAW">HAW order</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/store-order/SY">SY order</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/supplier-orders">Supplier orders</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm">
+              <Link to="/recipes">Recipes</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      {isAdmin ? (
+      <>
       <div className="mb-3 grid grid-cols-2 gap-3">
         <Card>
           <CardHeader>
@@ -270,6 +304,8 @@ export default function DashboardPage() {
           </Button>
         </CardContent>
       </Card>
+      </>
+      ) : null}
       {/* Prep items reference to satisfy lints; downstream uses if expanded. */}
       <span className="hidden">{prepItems.length}</span>
     </AppShell>

@@ -14,42 +14,62 @@ import {
   CalendarPlus,
   Store,
   Calculator,
+  Receipt,
+  BarChart3,
+  NotebookPen,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   GlobalSettingsCard,
   StoresCard,
   SuppliersCard,
+  SupplierScheduleCard,
   PrepItemsCard,
   IngredientsCard,
   RecipesCard,
   UsersCard,
+  ForecastCard,
+  MenuItemSplitsCard,
 } from "@/components/settings";
 
-const MORE_LINKS = [
-  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+type LinkSpec = { to: string; label: string; icon: typeof LayoutDashboard; adminOnly?: boolean };
+
+const FOR_TODAY_LINKS: LinkSpec[] = [
   { to: "/store-order/SY", label: "SY order", icon: Store },
-  { to: "/catering", label: "Catering", icon: CalendarPlus },
   { to: "/sales-input", label: "Sales input", icon: ClipboardList },
-  { to: "/invoice-history", label: "Invoice history", icon: History },
+  { to: "/sales-averages", label: "Sales averages", icon: BarChart3 },
+  { to: "/prep-log", label: "Prep log", icon: NotebookPen },
   { to: "/recipes", label: "Recipes", icon: BookOpen },
-  { to: "/costing", label: "Costing", icon: Calculator },
-  { to: "/audit-log", label: "Audit log", icon: ScrollText },
+];
+
+const COMMERCIAL_LINKS: LinkSpec[] = [
+  { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
+  { to: "/catering", label: "Catering", icon: CalendarPlus, adminOnly: true },
+  { to: "/invoice", label: "Invoice", icon: Receipt, adminOnly: true },
+  { to: "/invoice-history", label: "Invoice history", icon: History, adminOnly: true },
+  { to: "/costing", label: "Costing", icon: Calculator, adminOnly: true },
+  { to: "/audit-log", label: "Audit log", icon: ScrollText, adminOnly: true },
 ];
 
 type SectionId =
   | "global"
+  | "forecast"
+  | "splits"
   | "stores"
   | "suppliers"
+  | "supplier_schedule"
   | "prep"
   | "ingredients"
   | "recipes"
   | "users";
 
 const SECTIONS: { id: SectionId; label: string; description: string }[] = [
-  { id: "global", label: "Global", description: "Week #, buffer %, waste threshold" },
+  { id: "global", label: "Global", description: "Week #, buffer %, waste threshold, forecast window" },
+  { id: "forecast", label: "Forecast weeks", description: "Exclude weird weeks from averages" },
+  { id: "splits", label: "Store splits", description: "HAW vs SY % per panini" },
   { id: "stores", label: "Stores", description: "Hawthorn + South Yarra" },
-  { id: "suppliers", label: "Suppliers", description: "Schedules + lead times" },
+  { id: "suppliers", label: "Suppliers", description: "Name + raw JSON shape" },
+  { id: "supplier_schedule", label: "Supplier schedule", description: "Delivery cadence + per-ingredient split" },
   { id: "prep", label: "Prep items", description: "Portions, batches, transfer prices" },
   { id: "ingredients", label: "Ingredients", description: "Costs + suppliers" },
   { id: "recipes", label: "Recipes", description: "Builds + panini compositions" },
@@ -59,16 +79,18 @@ const SECTIONS: { id: SectionId; label: string; description: string }[] = [
 export default function SettingsPage() {
   const [section, setSection] = useState<SectionId>("global");
   const { user, logout } = useAuth();
+  const isAdmin = user?.is_admin === true;
+  const commercialLinks = COMMERCIAL_LINKS.filter((l) => !l.adminOnly || isAdmin);
   return (
     <AppShell title="More">
       <Card className="mb-4">
         <CardHeader>
-          <CardTitle>Jump to</CardTitle>
-          <CardDescription>Other screens not in the bottom nav.</CardDescription>
+          <CardTitle>For today's prep</CardTitle>
+          <CardDescription>Screens you'll use most often.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            {MORE_LINKS.map(({ to, label, icon: Icon }) => (
+            {FOR_TODAY_LINKS.map(({ to, label, icon: Icon }) => (
               <Link
                 key={to}
                 to={to}
@@ -81,6 +103,30 @@ export default function SettingsPage() {
           </div>
         </CardContent>
       </Card>
+      {commercialLinks.length > 0 ? (
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>Commercial</CardTitle>
+            <CardDescription>
+              {isAdmin ? "Owner-facing surfaces." : "Limited view — ask admin for access."}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+              {commercialLinks.map(({ to, label, icon: Icon }) => (
+                <Link
+                  key={to}
+                  to={to}
+                  className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                >
+                  <Icon className="h-4 w-4 text-stone-500" />
+                  {label}
+                </Link>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card className="mb-4">
         <CardHeader>
@@ -117,8 +163,11 @@ export default function SettingsPage() {
       </Card>
 
       {section === "global" && <GlobalSettingsCard />}
+      {section === "forecast" && <ForecastCard />}
+      {section === "splits" && <MenuItemSplitsCard />}
       {section === "stores" && <StoresCard />}
       {section === "suppliers" && <SuppliersCard />}
+      {section === "supplier_schedule" && <SupplierScheduleCard />}
       {section === "prep" && <PrepItemsCard />}
       {section === "ingredients" && <IngredientsCard />}
       {section === "recipes" && <RecipesCard />}

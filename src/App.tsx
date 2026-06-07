@@ -147,22 +147,27 @@ export default function App() {
                   </RouteGuard>
                 }
               />
-              <Route
-                path="/__primitives"
-                element={
-                  <RouteGuard>
-                    <PrimitivesPage />
-                  </RouteGuard>
-                }
-              />
-              <Route
-                path="/__sentry-test"
-                element={
-                  <RouteGuard>
-                    <SentryTestPage />
-                  </RouteGuard>
-                }
-              />
+              {/* Internal/dev-only routes: not registered in production builds. */}
+              {import.meta.env.DEV ? (
+                <>
+                  <Route
+                    path="/__primitives"
+                    element={
+                      <RouteGuard>
+                        <PrimitivesPage />
+                      </RouteGuard>
+                    }
+                  />
+                  <Route
+                    path="/__sentry-test"
+                    element={
+                      <RouteGuard>
+                        <SentryTestPage />
+                      </RouteGuard>
+                    }
+                  />
+                </>
+              ) : null}
               <Route path="/" element={<Navigate to="/today" replace />} />
               <Route path="*" element={<Navigate to="/today" replace />} />
             </Routes>

@@ -43,7 +43,29 @@ export type Database = {
           week_id?: string
           weekday?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "addon_entries_addon_item_id_fkey"
+            columns: ["addon_item_id"]
+            isOneToOne: false
+            referencedRelation: "addon_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "addon_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "addon_entries_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "sales_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       addon_items: {
         Row: {
@@ -76,7 +98,15 @@ export type Database = {
           portion_g?: number | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "addon_items_linked_prep_item_id_fkey"
+            columns: ["linked_prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       app_settings: {
         Row: {
@@ -86,7 +116,9 @@ export type Database = {
           latest_week_number: number
           singleton: boolean
           updated_at: string
+          use_median: boolean
           waste_threshold_pct: number
+          window_weeks: number
         }
         Insert: {
           buffer_pct?: number
@@ -95,7 +127,9 @@ export type Database = {
           latest_week_number?: number
           singleton?: boolean
           updated_at?: string
+          use_median?: boolean
           waste_threshold_pct?: number
+          window_weeks?: number
         }
         Update: {
           buffer_pct?: number
@@ -104,7 +138,9 @@ export type Database = {
           latest_week_number?: number
           singleton?: boolean
           updated_at?: string
+          use_median?: boolean
           waste_threshold_pct?: number
+          window_weeks?: number
         }
         Relationships: []
       }
@@ -139,7 +175,15 @@ export type Database = {
           ts?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       catering_order_lines: {
         Row: {
@@ -163,7 +207,22 @@ export type Database = {
           qty?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "catering_order_lines_catering_order_id_fkey"
+            columns: ["catering_order_id"]
+            isOneToOne: false
+            referencedRelation: "catering_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "catering_order_lines_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       catering_orders: {
         Row: {
@@ -199,7 +258,15 @@ export type Database = {
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "catering_orders_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ingredient_cost_history: {
         Row: {
@@ -229,7 +296,15 @@ export type Database = {
           ingredient_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ingredient_cost_history_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ingredients: {
         Row: {
@@ -243,6 +318,7 @@ export type Database = {
           pack_desc: string | null
           pack_qty: number | null
           pack_unit: string | null
+          split_rule: string
           supplier_id: string | null
           updated_at: string
         }
@@ -257,6 +333,7 @@ export type Database = {
           pack_desc?: string | null
           pack_qty?: number | null
           pack_unit?: string | null
+          split_rule?: string
           supplier_id?: string | null
           updated_at?: string
         }
@@ -271,10 +348,19 @@ export type Database = {
           pack_desc?: string | null
           pack_qty?: number | null
           pack_unit?: string | null
+          split_rule?: string
           supplier_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "ingredients_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "suppliers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoice_lines: {
         Row: {
@@ -304,7 +390,22 @@ export type Database = {
           unit_price_cents?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoice_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_lines_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       invoices: {
         Row: {
@@ -346,7 +447,22 @@ export type Database = {
           week_number?: number
           week_start?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "invoices_generated_by_user_id_fkey"
+            columns: ["generated_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       menu_item_recipe: {
         Row: {
@@ -379,7 +495,29 @@ export type Database = {
           qty_unit?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "menu_item_recipe_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_item_recipe_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_item_recipe_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       menu_items: {
         Row: {
@@ -454,7 +592,29 @@ export type Database = {
           yield_qty?: number
           yield_unit?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prep_item_recipe_child_prep_item_id_fkey"
+            columns: ["child_prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prep_item_recipe_ingredient_id_fkey"
+            columns: ["ingredient_id"]
+            isOneToOne: false
+            referencedRelation: "ingredients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prep_item_recipe_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prep_items: {
         Row: {
@@ -544,7 +704,22 @@ export type Database = {
           qty_sent_sy?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prep_log_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prep_log_prepped_by_user_id_fkey"
+            columns: ["prepped_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       prep_plan_overrides: {
         Row: {
@@ -583,7 +758,22 @@ export type Database = {
           prep_item_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "prep_plan_overrides_created_by_user_id_fkey"
+            columns: ["created_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "prep_plan_overrides_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_entries: {
         Row: {
@@ -616,11 +806,34 @@ export type Database = {
           week_id?: string
           weekday?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sales_entries_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_entries_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_entries_week_id_fkey"
+            columns: ["week_id"]
+            isOneToOne: false
+            referencedRelation: "sales_weeks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sales_weeks: {
         Row: {
           created_at: string
+          exclude_from_avg: boolean
           id: string
           updated_at: string
           week_end_date: string
@@ -629,6 +842,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          exclude_from_avg?: boolean
           id?: string
           updated_at?: string
           week_end_date: string
@@ -637,6 +851,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          exclude_from_avg?: boolean
           id?: string
           updated_at?: string
           week_end_date?: string
@@ -676,7 +891,22 @@ export type Database = {
           qty_on_hand?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stock_counts_counted_by_user_id_fkey"
+            columns: ["counted_by_user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "stock_counts_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_order_lines: {
         Row: {
@@ -703,7 +933,22 @@ export type Database = {
           store_order_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "store_order_lines_prep_item_id_fkey"
+            columns: ["prep_item_id"]
+            isOneToOne: false
+            referencedRelation: "prep_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "store_order_lines_store_order_id_fkey"
+            columns: ["store_order_id"]
+            isOneToOne: false
+            referencedRelation: "store_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_order_overrides: {
         Row: {
@@ -1003,7 +1248,9 @@ export type Database = {
         Relationships: []
       }
     }
-    Views: { [_ in never]: never }
+    Views: {
+      [_ in never]: never
+    }
     Functions: {
       _unit_conv: {
         Args: { p_from: string; p_qty: number; p_to: string }
@@ -1012,7 +1259,11 @@ export type Database = {
       auto_advance_week: { Args: never; Returns: undefined }
       combined_demand_by_weekday: {
         Args: { p_week_number: number }
-        Returns: { demand_qty: number; prep_item_id: string; weekday: string }[]
+        Returns: {
+          demand_qty: number
+          prep_item_id: string
+          weekday: string
+        }[]
       }
       compute_cogs: {
         Args: { p_as_of_date?: string; p_id: string; p_kind: string }
@@ -1048,7 +1299,11 @@ export type Database = {
       }
       list_active_users: {
         Args: never
-        Returns: { display_name: string; id: string; must_change_pin: boolean }[]
+        Returns: {
+          display_name: string
+          id: string
+          must_change_pin: boolean
+        }[]
       }
       prep_gap: {
         Args: { p_date: string }
@@ -1065,9 +1320,16 @@ export type Database = {
       }
       sales_averages_4wk: {
         Args: { p_store_id: string; p_week_number: number }
-        Returns: { avg_qty: number; menu_item_id: string; weekday: string }[]
+        Returns: {
+          avg_qty: number
+          menu_item_id: string
+          weekday: string
+        }[]
       }
-      set_pin: { Args: { p_pin: string; p_user_id: string }; Returns: undefined }
+      set_pin: {
+        Args: { p_pin: string; p_user_id: string }
+        Returns: undefined
+      }
       store_order_recommendation: {
         Args: { p_for_date: string; p_store_id: string }
         Returns: {
@@ -1094,7 +1356,10 @@ export type Database = {
         Args: { p_as_of_date: string; p_prep_item_id: string }
         Returns: number
       }
-      verify_pin: { Args: { p_pin: string; p_user_id: string }; Returns: boolean }
+      verify_pin: {
+        Args: { p_pin: string; p_user_id: string }
+        Returns: boolean
+      }
       weekly_invoice: {
         Args: { p_store_id: string; p_week_end: string; p_week_start: string }
         Returns: {
@@ -1105,8 +1370,12 @@ export type Database = {
         }[]
       }
     }
-    Enums: { [_ in never]: never }
-    CompositeTypes: { [_ in never]: never }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
 }
 
@@ -1133,8 +1402,10 @@ export type Tables<
     }
     ? R
     : never
-  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    ? (DefaultSchema["Tables"] & DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -1159,7 +1430,11 @@ export type TablesInsert<
     ? I
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends { Insert: infer I } ? I : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
     : never
 
 export type TablesUpdate<
@@ -1180,7 +1455,49 @@ export type TablesUpdate<
     ? U
     : never
   : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
-    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends { Update: infer U } ? U : never
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
     : never
 
-export const Constants = { public: { Enums: {} } } as const
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {},
+  },
+} as const

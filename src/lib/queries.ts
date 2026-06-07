@@ -74,6 +74,8 @@ export function useUpdateAppSettings() {
       latest_week_number?: number;
       buffer_pct?: number;
       waste_threshold_pct?: number;
+      window_weeks?: number;
+      use_median?: boolean;
     }) => {
       const { data: cur } = await supabase
         .from("app_settings")
@@ -194,6 +196,73 @@ export function useSalesWeeks() {
       if (error) throw error;
       return data ?? [];
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Phase 1 refresh mutations — sales_weeks exclusion, ingredient split rules,
+// menu_item splits, supplier schedule.
+// ---------------------------------------------------------------------------
+export function useUpdateSalesWeekExclusion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: { id: string; exclude_from_avg: boolean }) => {
+      const { error } = await supabase
+        .from("sales_weeks")
+        .update({ exclude_from_avg: patch.exclude_from_avg })
+        .eq("id", patch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.salesWeeks }),
+  });
+}
+
+export function useUpdateIngredientSplitRule() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: { id: string; split_rule: string }) => {
+      const { error } = await supabase
+        .from("ingredients")
+        .update({ split_rule: patch.split_rule })
+        .eq("id", patch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.ingredients }),
+  });
+}
+
+export function useUpdateMenuItemSplits() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: {
+      id: string;
+      haw_split_pct: number;
+      sy_split_pct: number;
+    }) => {
+      const { error } = await supabase
+        .from("menu_items")
+        .update({
+          haw_split_pct: patch.haw_split_pct,
+          sy_split_pct: patch.sy_split_pct,
+        })
+        .eq("id", patch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.menuItems }),
+  });
+}
+
+export function useUpdateSupplierSchedule() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: { id: string; schedule_jsonb: Record<string, unknown> }) => {
+      const { error } = await supabase
+        .from("suppliers")
+        .update({ schedule_jsonb: patch.schedule_jsonb as never })
+        .eq("id", patch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.suppliers }),
   });
 }
 

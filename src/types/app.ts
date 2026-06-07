@@ -7,4 +7,5 @@ export type PublicUser = {
   id: string;
   display_name: string;
   must_change_pin: boolean;
+  is_admin: boolean;
 };
