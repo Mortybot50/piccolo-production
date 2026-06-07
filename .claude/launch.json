@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "piccolo-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "5173"],
+      "port": 5173,
+      "env": {
+        "VITE_SUPABASE_URL": "https://qjplbovvadtfkmtjxplf.supabase.co",
+        "VITE_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqcGxib3Z2YWR0ZmttdGp4cGxmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwMTg3NjgsImV4cCI6MjA5NDU5NDc2OH0.fUIL8EQLJ0XyQdzYEoz1QeZxeyklbiI-myAOIr75z5Q"
+      }
+    }
+  ]
+}

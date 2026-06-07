@@ -12,6 +12,9 @@
     "gen:types": "supabase gen types typescript --project-id qjplbovvadtfkmtjxplf > src/types/database.ts"
   },
   "dependencies": {
+    "@fontsource-variable/fraunces": "^5.2.9",
+    "@fontsource/fraunces": "^5.2.9",
+    "@fontsource/instrument-sans": "^5.2.8",
     "@fontsource/inter": "^5.1.0",
     "@fontsource/inter-tight": "^5.1.0",
     "@fontsource/jetbrains-mono": "^5.1.0",

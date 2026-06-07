@@ -84,7 +84,12 @@ export const PinAuth = {
 const pinAuthFetch: typeof fetch = (input, init = {}) => {
   const jwt = PinAuth.getJwt();
   const headers = new Headers(init.headers);
-  if (jwt && !headers.has("authorization")) {
+  // supabase-js automatically sets `authorization: Bearer <anon_key>` on
+  // every request. When the user is logged in via PIN, we MUST overwrite
+  // that with their JWT so PostgREST applies the `authenticated` role and
+  // RLS sees them as the right user. The previous `!headers.has(...)` guard
+  // silently dropped the JWT and made every RLS-protected query return [].
+  if (jwt) {
     headers.set("authorization", `Bearer ${jwt}`);
   }
   return fetch(input, { ...init, headers });

@@ -18,23 +18,40 @@ const items = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
-      <ul className="mx-auto flex max-w-screen-sm">
+    <nav
+      aria-label="Primary"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--color-border)] bg-[var(--color-bg-elevated)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-bg-elevated)]/85"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+    >
+      <ul className="container-app flex">
         {items.map(({ to, label, icon: Icon }) => (
           <li key={to} className="flex-1">
             <NavLink
               to={to}
               className={({ isActive }) =>
                 cn(
-                  "flex flex-col items-center gap-1 py-2 text-xs font-medium tap-target",
+                  "flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium tap-comfortable",
                   isActive
-                    ? "text-[var(--color-brand-600)]"
-                    : "text-stone-500 hover:text-stone-800"
+                    ? "text-[var(--color-brand-700)]"
+                    : "text-[var(--color-fg-muted)] hover:text-[var(--color-fg)]"
                 )
               }
             >
-              <Icon className="h-5 w-5" />
-              {label}
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={cn(
+                      "flex h-9 w-12 items-center justify-center rounded-full transition-colors",
+                      isActive
+                        ? "bg-[var(--color-brand-100)] text-[var(--color-brand-700)]"
+                        : "text-[var(--color-fg-muted)]"
+                    )}
+                  >
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <span>{label}</span>
+                </>
+              )}
             </NavLink>
           </li>
         ))}
