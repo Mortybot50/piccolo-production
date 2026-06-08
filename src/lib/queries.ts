@@ -20,6 +20,10 @@ export const qk = {
   salesEntries: (weekId: string) => ["sales_entries", weekId] as const,
   prepLog: (date: string) => ["prep_log", date] as const,
   stockCounts: (date: string) => ["stock_counts", date] as const,
+  stockCountsLatest: ["stock_counts_latest"] as const,
+  ingredientStockCounts: (date: string) =>
+    ["ingredient_stock_counts", date] as const,
+  ingredientStockCountsLatest: ["ingredient_stock_counts_latest"] as const,
   wasteEntries: (date: string) => ["waste_entries", date] as const,
   storeOrders: ["store_orders"] as const,
   supplierOrders: ["supplier_orders"] as const,
@@ -469,6 +473,186 @@ export function useStockCounts(date: string = todayISO()) {
       if (error) throw error;
       return data ?? [];
     },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Stock counts (Phase 4) — both prep_items and ingredients have their own
+// count tables. The "latest" hooks pull the most recent count per item; used
+// by /stocktake to show "last counted X days ago" and pre-fill if today.
+// ---------------------------------------------------------------------------
+export function useLatestStockCountsByPrepItem() {
+  return useQuery({
+    queryKey: qk.stockCountsLatest,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("stock_counts")
+        .select("*")
+        .order("count_date", { ascending: false })
+        .limit(500);
+      if (error) throw error;
+      const latest = new Map<
+        string,
+        {
+          id: string;
+          count_date: string;
+          qty_on_hand: number;
+          input_qty: number | null;
+          input_unit: string | null;
+          par_qty_snapshot: number | null;
+        }
+      >();
+      for (const row of (data ?? []) as Array<{
+        id: string;
+        prep_item_id: string;
+        count_date: string;
+        qty_on_hand: number;
+        input_qty: number | null;
+        input_unit: string | null;
+        par_qty_snapshot: number | null;
+      }>) {
+        if (!latest.has(row.prep_item_id)) {
+          latest.set(row.prep_item_id, {
+            id: row.id,
+            count_date: row.count_date,
+            qty_on_hand: Number(row.qty_on_hand),
+            input_qty: row.input_qty,
+            input_unit: row.input_unit,
+            par_qty_snapshot: row.par_qty_snapshot,
+          });
+        }
+      }
+      return latest;
+    },
+  });
+}
+
+export function useLatestIngredientStockCounts() {
+  return useQuery({
+    queryKey: qk.ingredientStockCountsLatest,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ingredient_stock_counts")
+        .select("*")
+        .order("count_date", { ascending: false })
+        .limit(2000);
+      if (error) throw error;
+      const latest = new Map<
+        string,
+        {
+          id: string;
+          count_date: string;
+          qty_on_hand: number;
+          input_qty: number | null;
+          input_unit: string | null;
+          par_qty_snapshot: number | null;
+        }
+      >();
+      for (const row of (data ?? []) as Array<{
+        id: string;
+        ingredient_id: string;
+        count_date: string;
+        qty_on_hand: number;
+        input_qty: number | null;
+        input_unit: string | null;
+        par_qty_snapshot: number | null;
+      }>) {
+        if (!latest.has(row.ingredient_id)) {
+          latest.set(row.ingredient_id, {
+            id: row.id,
+            count_date: row.count_date,
+            qty_on_hand: Number(row.qty_on_hand),
+            input_qty: row.input_qty,
+            input_unit: row.input_unit,
+            par_qty_snapshot: row.par_qty_snapshot,
+          });
+        }
+      }
+      return latest;
+    },
+  });
+}
+
+export function useUpsertStockCount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: {
+      count_date: string;
+      prep_item_id: string;
+      qty_on_hand: number;
+      input_qty?: number | null;
+      input_unit?: string | null;
+      par_qty_snapshot?: number | null;
+      counted_by_user_id?: string | null;
+      notes?: string | null;
+    }) => {
+      const { error } = await supabase
+        .from("stock_counts")
+        .upsert(patch, { onConflict: "count_date,prep_item_id" });
+      if (error) throw error;
+    },
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({ queryKey: qk.stockCounts(vars.count_date) });
+      qc.invalidateQueries({ queryKey: qk.stockCountsLatest });
+      qc.invalidateQueries({ queryKey: qk.dailyPrepPlan(vars.count_date) });
+      qc.invalidateQueries({ queryKey: qk.prepGap(vars.count_date) });
+    },
+  });
+}
+
+export function useUpsertIngredientStockCount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: {
+      count_date: string;
+      ingredient_id: string;
+      qty_on_hand: number;
+      input_qty?: number | null;
+      input_unit?: string | null;
+      par_qty_snapshot?: number | null;
+      counted_by_user_id?: string | null;
+      notes?: string | null;
+    }) => {
+      const { error } = await supabase
+        .from("ingredient_stock_counts")
+        .upsert(patch, { onConflict: "count_date,ingredient_id" });
+      if (error) throw error;
+    },
+    onSuccess: (_data, vars) => {
+      qc.invalidateQueries({
+        queryKey: qk.ingredientStockCounts(vars.count_date),
+      });
+      qc.invalidateQueries({ queryKey: qk.ingredientStockCountsLatest });
+      qc.invalidateQueries({ queryKey: qk.supplierOrders });
+    },
+  });
+}
+
+export function useUpdatePrepItemPar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: { id: string; par_qty: number | null }) => {
+      const { error } = await supabase
+        .from("prep_items")
+        .update({ par_qty: patch.par_qty })
+        .eq("id", patch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.prepItems }),
+  });
+}
+
+export function useUpdateIngredientPar() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (patch: { id: string; par_qty: number | null }) => {
+      const { error } = await supabase
+        .from("ingredients")
+        .update({ par_qty: patch.par_qty })
+        .eq("id", patch.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: qk.ingredients }),
   });
 }
 

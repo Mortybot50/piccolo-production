@@ -11,7 +11,7 @@
 //   * Log Prep Run modal per row → writes prep_log with HAW/SY/kept splits.
 
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import {
   Card,
@@ -260,10 +260,20 @@ export default function TodayPage() {
 
       <Card className="mb-4">
         <CardHeader>
-          <CardTitle>Batch prep</CardTitle>
-          <CardDescription>
-            Stoplight tells you what to make. Count stock first.
-          </CardDescription>
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <CardTitle>Batch prep</CardTitle>
+              <CardDescription>
+                Stoplight tells you what to make.{" "}
+                <Link
+                  to="/stocktake"
+                  className="font-medium text-[var(--color-brand-700)] underline-offset-2 hover:underline"
+                >
+                  Count stock →
+                </Link>
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {batchItems.map((p) => (
@@ -776,12 +786,19 @@ function StockCountForm({
     mutationFn: async () => {
       const n = parseFloat(qty);
       if (!isFinite(n) || n < 0) throw new Error("Enter a non-negative number");
-      const { error } = await supabase.from("stock_counts").insert({
-        count_date: date,
-        prep_item_id: item.id,
-        qty_on_hand: n,
-        counted_by_user_id: userId,
-      });
+      const { error } = await supabase
+        .from("stock_counts")
+        .upsert(
+          {
+            count_date: date,
+            prep_item_id: item.id,
+            qty_on_hand: n,
+            input_qty: n,
+            input_unit: item.unit,
+            counted_by_user_id: userId,
+          },
+          { onConflict: "count_date,prep_item_id" },
+        );
       if (error) throw error;
     },
     onSuccess: () => {

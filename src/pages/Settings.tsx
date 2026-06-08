@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppShell } from "@/components/AppShell";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   LayoutDashboard,
   ScrollText,
@@ -17,6 +16,7 @@ import {
   Receipt,
   BarChart3,
   NotebookPen,
+  ListChecks,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -30,11 +30,14 @@ import {
   UsersCard,
   ForecastCard,
   MenuItemSplitsCard,
+  ParLevelsCard,
 } from "@/components/settings";
 
 type LinkSpec = { to: string; label: string; icon: typeof LayoutDashboard; adminOnly?: boolean };
 
 const FOR_TODAY_LINKS: LinkSpec[] = [
+  { to: "/stocktake", label: "Stocktake", icon: ListChecks },
+  { to: "/store-order/HAW", label: "HAW order", icon: Store },
   { to: "/store-order/SY", label: "SY order", icon: Store },
   { to: "/sales-input", label: "Sales input", icon: ClipboardList },
   { to: "/sales-averages", label: "Sales averages", icon: BarChart3 },
@@ -55,6 +58,7 @@ type SectionId =
   | "global"
   | "forecast"
   | "splits"
+  | "par"
   | "stores"
   | "suppliers"
   | "supplier_schedule"
@@ -63,30 +67,48 @@ type SectionId =
   | "recipes"
   | "users";
 
-const SECTIONS: { id: SectionId; label: string; description: string }[] = [
-  { id: "global", label: "Global", description: "Week #, buffer %, waste threshold, forecast window" },
-  { id: "forecast", label: "Forecast weeks", description: "Exclude weird weeks from averages" },
-  { id: "splits", label: "Store splits", description: "HAW vs SY % per panini" },
-  { id: "stores", label: "Stores", description: "Hawthorn + South Yarra" },
-  { id: "suppliers", label: "Suppliers", description: "Name + raw JSON shape" },
-  { id: "supplier_schedule", label: "Supplier schedule", description: "Delivery cadence + per-ingredient split" },
-  { id: "prep", label: "Prep items", description: "Portions, batches, transfer prices" },
-  { id: "ingredients", label: "Ingredients", description: "Costs + suppliers" },
-  { id: "recipes", label: "Recipes", description: "Builds + panini compositions" },
-  { id: "users", label: "Users", description: "PIN-auth crew" },
+interface Section {
+  id: SectionId;
+  label: string;
+  description: string;
+  group: "forecast" | "ops" | "data" | "people";
+}
+
+const SECTIONS: Section[] = [
+  { id: "global", label: "Global", description: "Week #, buffer %, waste threshold, forecast window", group: "forecast" },
+  { id: "forecast", label: "Forecast weeks", description: "Exclude weird weeks from averages", group: "forecast" },
+  { id: "splits", label: "Store splits", description: "HAW vs SY % per panini", group: "forecast" },
+  { id: "par", label: "Par levels", description: "Target on-hand qty per prep item + ingredient", group: "ops" },
+  { id: "supplier_schedule", label: "Supplier schedule", description: "Delivery cadence + per-ingredient split", group: "ops" },
+  { id: "stores", label: "Stores", description: "Hawthorn + South Yarra", group: "data" },
+  { id: "suppliers", label: "Suppliers", description: "Name + raw JSON shape", group: "data" },
+  { id: "prep", label: "Prep items", description: "Portions, batches, transfer prices", group: "data" },
+  { id: "ingredients", label: "Ingredients", description: "Costs + suppliers", group: "data" },
+  { id: "recipes", label: "Recipes", description: "Builds + panini compositions", group: "data" },
+  { id: "users", label: "Users", description: "PIN-auth crew", group: "people" },
 ];
+
+const GROUP_LABELS: Record<Section["group"], string> = {
+  forecast: "Forecast",
+  ops: "Operations",
+  data: "Master data",
+  people: "People",
+};
 
 export default function SettingsPage() {
   const [section, setSection] = useState<SectionId>("global");
   const { user, logout } = useAuth();
   const isAdmin = user?.is_admin === true;
   const commercialLinks = COMMERCIAL_LINKS.filter((l) => !l.adminOnly || isAdmin);
+  const tabsRef = useRef<HTMLDivElement>(null);
+  const currentSection = SECTIONS.find((s) => s.id === section);
+
   return (
-    <AppShell title="More">
-      <Card className="mb-4">
+    <AppShell title="More" subtitle={`Signed in as ${user?.display_name ?? "—"}`}>
+      <Card className="mb-3">
         <CardHeader>
           <CardTitle>For today's prep</CardTitle>
-          <CardDescription>Screens you'll use most often.</CardDescription>
+          <CardDescription>Jonny's most-used screens.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -94,21 +116,22 @@ export default function SettingsPage() {
               <Link
                 key={to}
                 to={to}
-                className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm font-medium hover:bg-[var(--color-bg-subtle)]"
               >
-                <Icon className="h-4 w-4 text-stone-500" />
+                <Icon className="h-4 w-4 text-[var(--color-fg-muted)]" />
                 {label}
               </Link>
             ))}
           </div>
         </CardContent>
       </Card>
+
       {commercialLinks.length > 0 ? (
-        <Card className="mb-4">
+        <Card className="mb-3">
           <CardHeader>
             <CardTitle>Commercial</CardTitle>
             <CardDescription>
-              {isAdmin ? "Owner-facing surfaces." : "Limited view — ask admin for access."}
+              {isAdmin ? "Owner-facing surfaces." : "Hidden until you're admin."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -117,9 +140,9 @@ export default function SettingsPage() {
                 <Link
                   key={to}
                   to={to}
-                  className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-white px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50"
+                  className="flex items-center gap-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm font-medium hover:bg-[var(--color-bg-subtle)]"
                 >
-                  <Icon className="h-4 w-4 text-stone-500" />
+                  <Icon className="h-4 w-4 text-[var(--color-fg-muted)]" />
                   {label}
                 </Link>
               ))}
@@ -128,50 +151,54 @@ export default function SettingsPage() {
         </Card>
       ) : null}
 
-      <Card className="mb-4">
+      <Card className="mb-3 overflow-hidden">
         <CardHeader>
           <CardTitle>Settings</CardTitle>
           <CardDescription>
-            All changes write to the audit log.
-            {user ? (
-              <span className="block text-xs text-stone-500">
-                Signed in as {user.display_name}
-              </span>
-            ) : null}
+            {currentSection?.description ?? "Pick a section to edit."} · All
+            changes write to the audit log.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
+        <CardContent className="p-0">
+          {/* Horizontal-scroll tab strip (OPS HUB pattern). One feature per tab. */}
+          <div
+            ref={tabsRef}
+            className="flex gap-1 overflow-x-auto border-b border-[var(--color-border)] px-5 py-2 md:flex-wrap md:px-6"
+            style={{ scrollbarWidth: "thin" }}
+          >
             {SECTIONS.map((s) => (
-              <Button
+              <button
                 key={s.id}
-                variant={section === s.id ? "default" : "outline"}
-                size="sm"
                 onClick={() => setSection(s.id)}
+                className={
+                  section === s.id
+                    ? "shrink-0 rounded-full bg-[var(--color-brand-600)] px-3 py-1.5 text-xs font-medium text-white"
+                    : "shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--color-fg-muted)] hover:bg-[var(--color-bg-subtle)]"
+                }
               >
                 {s.label}
-              </Button>
+                <span className="ml-1 text-[10px] opacity-70">
+                  · {GROUP_LABELS[s.group]}
+                </span>
+              </button>
             ))}
           </div>
-          <p className="mt-3 text-xs text-stone-500">
-            <Badge variant="outline" className="mr-1">
-              {SECTIONS.find((s) => s.id === section)?.label}
-            </Badge>
-            {SECTIONS.find((s) => s.id === section)?.description}
-          </p>
         </CardContent>
       </Card>
 
-      {section === "global" && <GlobalSettingsCard />}
-      {section === "forecast" && <ForecastCard />}
-      {section === "splits" && <MenuItemSplitsCard />}
-      {section === "stores" && <StoresCard />}
-      {section === "suppliers" && <SuppliersCard />}
-      {section === "supplier_schedule" && <SupplierScheduleCard />}
-      {section === "prep" && <PrepItemsCard />}
-      {section === "ingredients" && <IngredientsCard />}
-      {section === "recipes" && <RecipesCard />}
-      {section === "users" && <UsersCard />}
+      <div className="space-y-3">
+        {section === "global" && <GlobalSettingsCard />}
+        {section === "forecast" && <ForecastCard />}
+        {section === "splits" && <MenuItemSplitsCard />}
+        {section === "par" && <ParLevelsCard />}
+        {section === "stores" && <StoresCard />}
+        {section === "suppliers" && <SuppliersCard />}
+        {section === "supplier_schedule" && <SupplierScheduleCard />}
+        {section === "prep" && <PrepItemsCard />}
+        {section === "ingredients" && <IngredientsCard />}
+        {section === "recipes" && <RecipesCard />}
+        {section === "users" && <UsersCard />}
+      </div>
 
       <div className="mt-6 flex justify-end">
         <Button variant="outline" size="sm" onClick={() => void logout()}>

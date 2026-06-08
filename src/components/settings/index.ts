@@ -8,3 +8,4 @@ export { RecipesCard } from "./RecipesCard";
 export { UsersCard } from "./UsersCard";
 export { ForecastCard } from "./ForecastCard";
 export { MenuItemSplitsCard } from "./MenuItemSplitsCard";
+export { ParLevelsCard } from "./ParLevelsCard";
