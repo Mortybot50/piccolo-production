@@ -46,16 +46,23 @@ Deno.serve(async (req: Request) => {
     return json({ reason: "New PIN must differ from old PIN" }, 400);
   }
 
-  // Resolve caller via JWT.
-  const caller = createClient(SUPABASE_URL, ANON_KEY, {
-    global: { headers: { authorization: `Bearer ${token}` } },
-    auth: { autoRefreshToken: false, persistSession: false },
+  // Resolve caller via JWT. The supabase-js auth client doesn't reliably pick
+  // up the global.headers token for /auth/v1/user — hit the endpoint directly.
+  const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+      apikey: ANON_KEY,
+    },
   });
-  const { data: userResult, error: userErr } = await caller.auth.getUser();
-  if (userErr || !userResult.user) {
+  if (!userRes.ok) {
+    const txt = await userRes.text().catch(() => "");
+    console.error("getUser failed", userRes.status, txt);
     return json({ reason: "Invalid session" }, 401);
   }
-  const appUserId = userResult.user.user_metadata?.app_user_id as string | undefined;
+  const userRow = await userRes.json().catch(() => null) as
+    | { user_metadata?: { app_user_id?: string } }
+    | null;
+  const appUserId = userRow?.user_metadata?.app_user_id;
   if (!appUserId) {
     return json({ reason: "Session missing app user link" }, 401);
   }
