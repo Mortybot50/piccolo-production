@@ -4,6 +4,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LogOut, Settings as SettingsIcon } from "lucide-react";
 
+// Width container — Tailwind v4 doesn't reliably pick up
+// custom @layer utilities, so use native responsive classes directly.
+// Targets phone + iPad portrait/landscape; on bigger screens content stays
+// centred (this is a kitchen tool, not a dashboard).
+const CONTAINER = "mx-auto w-full max-w-md px-4 sm:max-w-lg md:max-w-xl md:px-6 lg:max-w-2xl";
+
 export function AppShell({
   children,
   title,
@@ -21,7 +27,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-[var(--color-bg)] pb-10">
       <header className="sticky top-0 z-30 border-b border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur supports-[backdrop-filter]:bg-[var(--color-bg)]/80">
-        <div className="container-app flex items-center gap-2 py-3 md:py-4">
+        <div className={`${CONTAINER} flex items-center gap-2 py-3 md:py-4`}>
           {showBack ? (
             <Button
               variant="ghost"
@@ -37,7 +43,7 @@ export function AppShell({
             <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--color-fg-soft)]">
               Piccolo Production
             </p>
-            <h1 className="truncate font-display text-2xl font-semibold leading-tight md:text-3xl">
+            <h1 className="truncate font-display text-xl font-semibold leading-tight md:text-2xl">
               {title}
             </h1>
             {subtitle ? (
@@ -72,7 +78,7 @@ export function AppShell({
           ) : null}
         </div>
       </header>
-      <main className="container-app py-5 md:py-7">{children}</main>
+      <main className={`${CONTAINER} py-4 md:py-6`}>{children}</main>
     </div>
   );
 }
