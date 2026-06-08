@@ -45,7 +45,7 @@ export default function ChangePinPage() {
     setBusy(false);
     if (r.ok) {
       toast.success("PIN updated");
-      navigate("/today", { replace: true });
+      navigate("/stocktake", { replace: true });
     } else {
       setError(r.reason);
       setStep("old");

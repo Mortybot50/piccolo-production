@@ -23,6 +23,8 @@ const CostingPage = lazy(() => import("@/pages/Costing"));
 const SalesAveragesPage = lazy(() => import("@/pages/SalesAverages"));
 const PrepLogPage = lazy(() => import("@/pages/PrepLog"));
 const StocktakePage = lazy(() => import("@/pages/Stocktake"));
+const StocktakePrepPage = lazy(() => import("@/pages/StocktakePrep"));
+const StocktakeSupplierPage = lazy(() => import("@/pages/StocktakeSupplier"));
 const SentryTestPage = lazy(() => import("@/pages/SentryTest"));
 
 const queryClient = new QueryClient({
@@ -174,6 +176,22 @@ export default function App() {
                   </RouteGuard>
                 }
               />
+              <Route
+                path="/stocktake/prep"
+                element={
+                  <RouteGuard>
+                    <StocktakePrepPage />
+                  </RouteGuard>
+                }
+              />
+              <Route
+                path="/stocktake/:supplier"
+                element={
+                  <RouteGuard>
+                    <StocktakeSupplierPage />
+                  </RouteGuard>
+                }
+              />
               {/* Internal/dev-only routes: not registered in production builds. */}
               {import.meta.env.DEV ? (
                 <>
@@ -195,8 +213,8 @@ export default function App() {
                   />
                 </>
               ) : null}
-              <Route path="/" element={<Navigate to="/today" replace />} />
-              <Route path="*" element={<Navigate to="/today" replace />} />
+              <Route path="/" element={<Navigate to="/stocktake" replace />} />
+              <Route path="*" element={<Navigate to="/stocktake" replace />} />
             </Routes>
           </Suspense>
           <Toaster />

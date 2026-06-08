@@ -74,7 +74,7 @@ export default function LoginPage() {
       if (u?.must_change_pin) {
         navigate("/change-pin", { replace: true });
       } else {
-        navigate("/today", { replace: true });
+        navigate("/stocktake", { replace: true });
       }
       return;
     }
